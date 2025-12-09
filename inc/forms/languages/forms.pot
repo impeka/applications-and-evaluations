@@ -1,0 +1,50 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2024-07-24T17:45:25+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.10.0\n"
+"X-Domain: impeka-forms\n"
+
+#: inc/classes/class-form-base.php:36
+msgid "You must complete the whole form to submit."
+msgstr ""
+
+#: inc/classes/class-form-base.php:110
+msgid "Pages: "
+msgstr ""
+
+#: inc/classes/class-form-base.php:171
+msgid "Save"
+msgstr ""
+
+#: inc/classes/class-form-base.php:172
+msgid "Save & Continue"
+msgstr ""
+
+#: inc/classes/class-form-base.php:175
+msgid "Save & Complete"
+msgstr ""
+
+#: inc/classes/class-form-base.php:183
+msgid "Update"
+msgstr ""
+
+#: inc/classes/class-form-base.php:197
+msgid "You must complete every page of the form before it can be submitted."
+msgstr ""
+
+#: inc/classes/class-form-base.php:197
+msgctxt "giving the url of the first incomplete page of the form"
+msgid "You can use the form navigation above or click here."
+msgstr ""
+
+#: inc/classes/class-form-base.php:211
+msgid "Your submission has been saved."
+msgstr ""

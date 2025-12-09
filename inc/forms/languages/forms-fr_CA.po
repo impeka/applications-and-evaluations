@@ -1,0 +1,51 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-07-24T17:45:25+00:00\n"
+"PO-Revision-Date: 2024-07-24 14:21-0400\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: fr_CA\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.4.4\n"
+"X-Domain: impeka-forms\n"
+
+#: inc/classes/class-form-base.php:36
+msgid "You must complete the whole form to submit."
+msgstr "Vous devez remplir l'ensemble du formulaire pour le soumettre."
+
+#: inc/classes/class-form-base.php:110
+msgid "Pages: "
+msgstr "Pages: "
+
+#: inc/classes/class-form-base.php:171
+msgid "Save"
+msgstr "Sauvegarder"
+
+#: inc/classes/class-form-base.php:172
+msgid "Save & Continue"
+msgstr "Sauvegarder et continuer"
+
+#: inc/classes/class-form-base.php:175
+msgid "Save & Complete"
+msgstr "Sauvegarder et compléter"
+
+#: inc/classes/class-form-base.php:183
+msgid "Update"
+msgstr "Mettre à jour"
+
+#: inc/classes/class-form-base.php:197
+msgid "You must complete every page of the form before it can be submitted."
+msgstr "Vous devez remplir toutes les pages du formulaire avant de pouvoir le soumettre."
+
+#: inc/classes/class-form-base.php:197
+msgctxt "giving the url of the first incomplete page of the form"
+msgid "You can use the form navigation above or click here."
+msgstr "Vous pouvez utiliser le formulaire de navigation ci-dessus ou cliquer ici."
+
+#: inc/classes/class-form-base.php:211
+msgid "Your submission has been saved."
+msgstr "Votre soumission a été enregistrée."

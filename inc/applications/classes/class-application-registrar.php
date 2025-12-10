@@ -56,6 +56,21 @@ class ApplicationRegistrar {
                 'show_in_rest'      => true,
             ]
         );
+
+        register_taxonomy(
+            'application_session',
+            [ 'application' ],
+            [
+                'labels'            => [
+                    'name'          => __( 'Application Sessions', 'applications-and-evaluations' ),
+                    'singular_name' => __( 'Application Session', 'applications-and-evaluations' ),
+                ],
+                'public'            => true,
+                'show_admin_column' => true,
+                'hierarchical'      => false,
+                'show_in_rest'      => true,
+            ]
+        );
     }
 
     public function register_form_builder_fields() : void {
@@ -110,6 +125,67 @@ class ApplicationRegistrar {
                                 ],
                             ],
                         ],
+                    ],
+                ],
+            ]
+        );
+
+        acf_add_local_field_group(
+            [
+                'key'      => 'group_application_session_settings',
+                'title'    => __( 'Application Session Settings', 'applications-and-evaluations' ),
+                'location' => [
+                    [
+                        [
+                            'param'    => 'taxonomy',
+                            'operator' => '==',
+                            'value'    => 'application_session',
+                        ],
+                    ],
+                ],
+                'fields'   => [
+                    [
+                        'key'           => 'field_application_session_application_type',
+                        'label'         => __( 'Application Type', 'applications-and-evaluations' ),
+                        'name'          => 'application_session_application_type',
+                        'type'          => 'taxonomy',
+                        'taxonomy'      => 'application_type',
+                        'field_type'    => 'select',
+                        'return_format' => 'id',
+                        'add_term'      => 0,
+                        'multiple'      => 0,
+                        'ui'            => 1,
+                        'instructions'  => __( 'Select the application type this session belongs to.', 'applications-and-evaluations' ),
+                        'required'      => 1,
+                    ],
+                    [
+                        'key'            => 'field_application_session_start',
+                        'label'          => __( 'Opens At', 'applications-and-evaluations' ),
+                        'name'           => 'application_session_start',
+                        'type'           => 'date_time_picker',
+                        'display_format' => 'Y-m-d H:i',
+                        'return_format'  => 'Y-m-d H:i:s',
+                        'instructions'   => __( 'Applications can start at this date/time. Leave empty to open immediately.', 'applications-and-evaluations' ),
+                    ],
+                    [
+                        'key'            => 'field_application_session_end',
+                        'label'          => __( 'Closes At', 'applications-and-evaluations' ),
+                        'name'           => 'application_session_end',
+                        'type'           => 'date_time_picker',
+                        'display_format' => 'Y-m-d H:i',
+                        'return_format'  => 'Y-m-d H:i:s',
+                        'instructions'   => __( 'Applications close after this date/time. Leave empty for no end date.', 'applications-and-evaluations' ),
+                    ],
+                    [
+                        'key'           => 'field_application_session_submission_limit',
+                        'label'         => __( 'Submissions Per User', 'applications-and-evaluations' ),
+                        'name'          => 'application_session_submission_limit',
+                        'type'          => 'number',
+                        'min'           => 0,
+                        'step'          => 1,
+                        'instructions'  => __( 'Maximum applications a single user can submit for this session. Use 0 or leave empty for unlimited.', 'applications-and-evaluations' ),
+                        'wrapper'       => [ 'width' => '50' ],
+                        'default_value' => '',
                     ],
                 ],
             ]

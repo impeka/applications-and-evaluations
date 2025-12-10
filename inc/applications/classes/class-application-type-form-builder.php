@@ -10,12 +10,48 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class ApplicationTypeFormBuilder {
-    public static function form_id_from_term( \WP_Term $term ) : string {
+    private static ?ApplicationTypeFormBuilder $instance = null;
+
+    private function __construct() {
+        add_action( 'init', [$this, 'prime_all_forms'], 4 );
+    }
+
+    public static function get_instance() : self {
+        if ( self::$instance === null ) {
+            self::$instance = new self();
+        }
+
+        return self::$instance;
+    }
+
+    public function form_id_from_term( \WP_Term $term ) : string {
         return sprintf( 'application-type-%s', $term->slug );
     }
 
-    public static function build_form_for_term( \WP_Term $term ) : PostForm {
-        $form_id = self::form_id_from_term( $term );
+    /**
+     * Build all forms for every application type term to ensure hooks are registered early.
+     */
+    public function prime_all_forms() : void {
+        $types = get_terms(
+            [
+                'taxonomy'   => 'application_type',
+                'hide_empty' => false,
+            ]
+        );
+
+        if ( is_wp_error( $types ) ) {
+            return;
+        }
+
+        foreach ( $types as $type ) {
+            if ( $type instanceof \WP_Term ) {
+                $this->build_form_for_term( $type );
+            }
+        }
+    }
+
+    public function build_form_for_term( \WP_Term $term ) : PostForm {
+        $form_id = $this->form_id_from_term( $term );
         $form    = new PostForm( $form_id );
 
         $pages = get_field( 'application_form_pages', sprintf( 'application_type_%d', $term->term_id ) );

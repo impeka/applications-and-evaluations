@@ -3,12 +3,13 @@
 namespace Impeka\Applications;
 
 use Impeka\Tools\Forms\PostForm;
+use Impeka\Applications\FormSubmissionError;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-class Application {
+class Application implements FormSubmissionError {
     protected \WP_Post $_post;
     protected ?\WP_Term $_type;
     protected ?PostForm $_form = null;
@@ -24,7 +25,7 @@ class Application {
         $this->_type = $this->get_type_term();
 
         if ( $this->_type instanceof \WP_Term ) {
-            $this->_form = ApplicationTypeFormBuilder::build_form_for_term( $this->_type );
+            $this->_form = ApplicationTypeFormBuilder::get_instance()->build_form_for_term( $this->_type );
         }
     }
 
@@ -108,5 +109,12 @@ class Application {
         }
 
         return date_i18n( $format, $date->format( 'U' ) );
+    }
+
+    /**
+     * Stub implementation to satisfy FormSubmissionError; replace with actual messages if needed.
+     */
+    public static function messages() : array {
+        return [];
     }
 }

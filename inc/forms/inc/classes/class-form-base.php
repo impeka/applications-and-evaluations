@@ -19,6 +19,7 @@ abstract class FormBase {
         add_filter( 'acf/load_field', [$this, 'check_for_save_for_later'], 10, 1 );
         add_filter( 'acf/pre_submit_form', [$this, 'update_field_on_save_for_later'], 10, 1 );
         add_action( 'acf/validate_save_post', [$this, 'check_for_complete_form'] );
+        add_action( 'acf/validate_save_post', [$this, 'enforce_save_return_on_validate'], 1 );
     }
 
     public function check_for_complete_form() {
@@ -59,7 +60,7 @@ abstract class FormBase {
     }
 
     private function _is_this_form() : bool {
-        return isset( $_POST['_fasmc_form_id'] ) && $_POST['_fasmc_form_id'] == $this->_id;
+        return isset( $_POST['_application_form_id'] ) && $_POST['_application_form_id'] == $this->_id;
     }
 
     public function check_for_save_for_later( array $field ) : array {
@@ -85,13 +86,30 @@ abstract class FormBase {
     }
 
     public function update_field_on_save_for_later( array $form ) : array {
-        if( ! $this->_is_this_form() )
+        // Use the form array directly; do not rely solely on POST presence of the id.
+        if ( empty( $form['id'] ) || $form['id'] !== $this->_id ) {
             return $form;
+        }
 
-        if( isset( $_POST['save_flag'] ) )
-            $form['return'] = ( empty( $_SERVER['HTTPS'] ) ? 'http' : 'https' ) . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+        if ( isset( $_POST['save_flag'] ) ) {
+            $current_url   = ( empty( $_SERVER['HTTPS'] ) ? 'http' : 'https' ) . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+            $form['return'] = $current_url;
+        }
 
         return $form;
+    }
+
+    /**
+     * Backup safeguard: ensure return url is set for save (runs even if pre_submit filter missed).
+     */
+    public function enforce_save_return_on_validate() : void {
+        if( ! $this->_is_this_form() )
+            return;
+
+        if( isset( $_POST['save_flag'], $_POST['_acf_form'] ) && is_array( $_POST['_acf_form'] ) ) {
+            $current_url = ( empty( $_SERVER['HTTPS'] ) ? 'http' : 'https' ) . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+            $_POST['_acf_form']['return'] = $current_url;
+        }
     }
 
     public function on_form_submit( array $form, int|string $post_id ) : void {
@@ -220,7 +238,7 @@ abstract class FormBase {
         }
 
         $input_page = sprintf( '<input type="hidden" name="current_page" value="%s" />', implode( ',', $input_page_value ) );
-        $input_form_id = sprintf( '<input type="hidden" name="_fasmc_form_id" value="%s" />', $this->_id );
+        $input_form_id = sprintf( '<input type="hidden" name="_application_form_id" value="%s" />', $this->_id );
         $save_button = sprintf( '<input type="checkbox" class="save_flag" name="save_flag" value="1" /><button class="form-button" name="save">%s</button>', __( 'Save', 'impeka-forms' ) );
         $submit_value = __( 'Save & Continue', 'impeka-forms' );
 
@@ -352,7 +370,6 @@ abstract class FormBase {
             $form_status = true;
         }
 
-        do_action( 'fasmc/form_page_saved', $this->_id, $post_id, $current_page, $form_status_before, $form_status ); // should be deprecated because namespace should be forms and not fasmc
         do_action( 'impeka/forms/page_saved', $this->_id, $post_id, $current_page, $form_status_before, $form_status );
 
         $this->_save_meta( $post_id, sprintf( '_form_%s_last_updated', $this->_id ), date( 'Y-m-d H:i:s' ) );

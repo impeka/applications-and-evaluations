@@ -1,0 +1,366 @@
+$color-consortium-purple : #535aa2;
+$color-consortium-green : #349d65;
+$color-consortium-orange : #f9a94a;
+$color-black : #232b2b;
+$color-light-gray : #f5f5f5;
+$color-dark-gray : #B8B8B8;
+$color-success-green : #5cb85c;
+$color-error-red : #ff3333;
+$color-warning-yellow : #ffcc00;
+
+
+@mixin button {
+    border: 1px solid $color-black;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-content: center;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    background: #fff;
+    height: 48px;
+    width: 48px;
+    font-size: 24px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+@mixin form-button {
+    border: 1px solid $color-black;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-content: center;
+    align-items: center;
+    gap: 5px;
+    margin: 0;
+    padding: 0.5em 1em;
+    background: #fff;
+    font-size: 22px;
+    cursor: pointer;
+    transition: transform .2s ease-in-out;
+    text-decoration: none;
+    color: #000;
+
+    &:not(:disabled) {
+        &:hover, &:focus {
+            transform: scale(1.02);
+        }
+    }
+
+    &:disabled {
+        cursor: no-drop;
+    }
+
+    i {
+        margin-right: .5em;
+    }
+
+    &.disabled, &:disabled {
+        color: rgba( $color-black, .4 );
+        border-color: rgba( $color-black, .4 );
+    }
+}
+
+.button-menu {
+    @include button;
+    width: auto;
+    padding: 0px 10px;
+
+    i {
+      padding-right: 10px;
+    }
+}
+
+.button-menu-close {
+    @include button;
+    border: none;
+}
+
+.button-default {
+    @include form-button;
+    display: inline-flex;
+    text-decoration: none;
+    color: #000;
+}
+
+.button-small {
+    @include form-button;
+    font-size: .8em;
+    padding: .1em .5em;
+    display: inline-flex;
+    text-decoration: none;
+}
+
+// Basic styling for application archive blocks.
+
+.application-type-block {
+  margin: 2.5rem 0;
+  padding: 1.5rem;
+  background: #f8f9fb;
+  border: 1px solid #e2e6ec;
+  border-radius: 8px;
+
+  h2 {
+    margin: 0 0 0.75rem;
+    font-size: 1.5rem;
+    color: #1f2d3d;
+  }
+}
+
+.application-session {
+  margin-top: 1.25rem;
+  padding: 1.25rem;
+  background: #fff;
+  border: 1px solid #e4e8ef;
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(31, 45, 61, 0.06);
+
+  &__header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-bottom: 0.75rem;
+
+    h3 {
+      margin: 0;
+      font-size: 1.25rem;
+      color: #0f172a;
+    }
+
+    & .application-session__dates {
+      color: #4b5563;
+      font-size: 0.95rem;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1rem;
+    margin-bottom: 1rem;
+  }
+
+  &__notice {
+    margin: 0;
+    color: #6b7280;
+    font-size: 0.95rem;
+  }
+
+  &__list {
+    margin-top: 0.5rem;
+
+    h4 {
+      margin: 0 0 0.5rem;
+      font-size: 1.05rem;
+      color: #111827;
+    }
+  }
+}
+
+.new-application-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.65rem 1.1rem;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #fff;
+  border-radius: 999px;
+  border: none;
+  text-decoration: none;
+  font-weight: 600;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.25);
+
+  &:hover,
+  &:focus {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 28px rgba(37, 99, 235, 0.3);
+  }
+
+  &.is-disabled {
+    opacity: 0.5;
+    pointer-events: none;
+    box-shadow: none;
+    transform: none;
+  }
+}
+
+.application-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  overflow: hidden;
+
+  th,
+  td {
+    padding: 0.75rem 0.9rem;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+    color: #1f2937;
+    font-size: 0.97rem;
+  }
+
+  th {
+    background: #f3f4f6;
+    font-weight: 700;
+    color: #111827;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+
+    a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #eef2ff;
+      color: #4338ca;
+      text-decoration: none;
+      transition: background 0.15s ease, color 0.15s ease;
+
+      &:hover,
+      &:focus {
+        background: #e0e7ff;
+        color: #312e81;
+      }
+    }
+
+    .application-table__action--delete {
+      background: #fef2f2;
+      color: #b91c1c;
+
+      &:hover,
+      &:focus {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  .application-session__actions {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+.application-table th,
+.application-table td {
+  font-size: 0.9rem;
+}
+}
+
+.save_flag {
+  display: none;
+}
+
+
+.notification {
+    padding: 1em 2em;
+}
+
+.notification-success {
+    border: 1px solid $color-success-green;
+    background: rgba( $color-success-green, .25 );
+}
+
+.notification-error {
+    border: 1px solid $color-error-red;
+    background: rgba( $color-error-red, .25 );
+}
+
+.pages-list {
+    margin: 0 auto 1em;
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: flex-start;
+    align-items: center;
+    gap: 10px;
+    list-style: none;
+
+    .warning {
+        color: $color-warning-yellow;
+    }
+
+    .success {
+        color: $color-success-green;
+    }
+
+    .current {
+        font-weight: bold;
+
+        .button-small {
+            border-width: 2px;
+        }
+    }
+}
+
+// Increase specificity on application pages to win against theme defaults.
+.single-application .pages-list,
+.post-type-application .pages-list {
+    margin: 0 auto 1em;
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: flex-start;
+    align-items: center;
+    gap: 10px;
+    list-style: none;
+}
+
+.single-application .pages-list__item,
+.post-type-application .pages-list__item {
+    margin: 0;
+    padding: 0;
+}
+
+.pages-list__item {
+    margin: 0;
+    padding: 0;
+}
+
+.form__buttons {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-content: flex-start;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 16px;
+}
+
+.success-green-color {
+    color: $color-success-green;
+}
+
+.error-red-color {
+    color: $color-error-red;
+}
+
+.save_flag {
+    display: none !important;
+}

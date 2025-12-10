@@ -11,6 +11,9 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
+use Impeka\Applications\Application;
+
 ?>
 
 <?php if ( empty( $types ) ) : ?>
@@ -34,7 +37,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 					$applications    = ae_get_user_applications_for_session( $current_user_id, $type->term_id, $session->term_id );
 					$app_count       = count( $applications );
 					$limit_reached   = $limit > 0 && $app_count >= $limit;
-					$button_disabled = $limit_reached || ! is_user_logged_in();
+					$session_start_ts = ae_session_start_ts( $session );
+					$session_end_ts   = ae_session_end_ts( $session );
+					$session_closed   = $session_end_ts && $session_end_ts < $now;
+					$button_disabled = $limit_reached || $session_closed || ! is_user_logged_in();
 					?>
 					<article class="application-session">
 						<header class="application-session__header">
@@ -56,6 +62,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 							</form>
 							<?php if ( $limit_reached ) : ?>
 								<p class="application-session__notice"><?php esc_html_e( 'Application limit reached for this session.', 'applications-and-evaluations' ); ?></p>
+							<?php elseif ( $session_closed ) : ?>
+								<p class="application-session__notice"><?php esc_html_e( 'This session is closed.', 'applications-and-evaluations' ); ?></p>
 							<?php elseif ( ! is_user_logged_in() ) : ?>
 								<p class="application-session__notice"><?php esc_html_e( 'Log in to start an application.', 'applications-and-evaluations' ); ?></p>
 							<?php elseif ( $limit > 0 ) : ?>
@@ -88,23 +96,48 @@ if ( ! defined( 'ABSPATH' ) ) {
 										</tr>
 									</thead>
 									<tbody>
-										<?php foreach ( $applications as $application ) : ?>
+										<?php foreach ( $applications as $application_post ) : ?>
 											<?php
-											$title       = get_the_title( $application ) ?: sprintf( __( 'Application #%d', 'applications-and-evaluations' ), $application->ID );
-											$status      = ae_application_status_label( $application->ID );
-											$edit_link   = get_permalink( $application );
-											$delete_link = get_delete_post_link( $application->ID, '', false );
-											$created     = ae_application_created_display( $application );
+											$application = new Application( $application_post->ID );
+											$title       = get_the_title( $application_post ) ?: sprintf( __( 'Application #%d', 'applications-and-evaluations' ), $application_post->ID );
+											$edit_link   = get_permalink( $application_post );
+											$view_link   = get_permalink( $application_post ).'/view/';
+											$delete_link = get_delete_post_link( $application_post->ID, '', false );
+											$created     = ae_application_created_display( $application_post );
+											$edit_disabled = $session_closed && ! $application->is_unlocked();
 											?>
 											<tr>
 												<td><?php echo esc_html( $title ); ?></td>
 												<td><?php echo esc_html( $created ); ?></td>
-												<td><?php echo esc_html( $status ); ?></td>
+												<td>
+													<?php switch( $application->get_status() ): case 'progress':  ?>
+														<progress class="application__progress" max="100" value="<?php echo $application->get_progress_percentage(); ?>"><?php echo $application->get_progress_percentage(); ?>%</progress>
+													<?php break; ?>
+													<?php case 'submit': ?>
+														<i class="fa-solid fa-check success-green-color"></i> <?php _e( 'Submitted', 'applications-and-evaluations' ); ?>
+													<?php break; ?>
+													<?php default: ?>
+														<?php echo $application->get_status(); ?>
+													<?php break; ?>
+												<?php endswitch; ?>
+												</td>
 												<td class="application-table__actions">
-													<?php if ( $edit_link ) : ?>
+													<?php if( 
+														$edit_link 
+														&& ! $edit_disabled
+													) : ?>
 														<a class="application-table__action application-table__action--edit" href="<?php echo esc_url( $edit_link ); ?>">
 															<i class="fa-light fa-pen-to-square" aria-hidden="true"></i>
 															<span class="screen-reader-text"><?php esc_html_e( 'Edit application', 'applications-and-evaluations' ); ?></span>
+														</a>
+													<?php elseif ( $edit_disabled ) : ?>
+														<span class="application-table__action application-table__action--edit is-disabled" aria-disabled="true">
+															<i class="fa-light fa-pen-to-square" aria-hidden="true"></i>
+															<span class="screen-reader-text"><?php esc_html_e( 'Editing disabled; session closed.', 'applications-and-evaluations' ); ?></span>
+														</span>
+														<a class="application-table__action application-table__action--view" href="<?php echo esc_url( $view_link ); ?>">
+															<i class="fa-thin fa-eye"aria-hidden="true"></i>
+															<span class="screen-reader-text"><?php esc_html_e( 'View application', 'applications-and-evaluations' ); ?></span>
 														</a>
 													<?php endif; ?>
 													<?php if ( $delete_link ) : ?>
@@ -113,6 +146,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 															<span class="screen-reader-text"><?php esc_html_e( 'Delete application', 'applications-and-evaluations' ); ?></span>
 														</a>
 													<?php endif; ?>
+
+													<a class="application-table__action application-table__action--view" href="<?php echo esc_url( $view_link ); ?>">
+															<i class="fa-thin fa-eye"aria-hidden="true"></i>
+															<span class="screen-reader-text"><?php esc_html_e( 'View application', 'applications-and-evaluations' ); ?></span>
+														</a>
 												</td>
 											</tr>
 										<?php endforeach; ?>

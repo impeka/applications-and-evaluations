@@ -40,12 +40,6 @@ namespace {
 		}
 	}
 
-	if ( ! function_exists( 'ae_application_status_label' ) ) {
-		function ae_application_status_label( int $post_id ) : string {
-			return ApplicationTemplateHelpers::application_status_label( $post_id );
-		}
-	}
-
 	if ( ! function_exists( 'ae_get_user_applications_for_session' ) ) {
 		function ae_get_user_applications_for_session( int $user_id, int $type_term_id, int $session_term_id ) : array {
 			return ApplicationTemplateHelpers::get_user_applications_for_session( $user_id, $type_term_id, $session_term_id );

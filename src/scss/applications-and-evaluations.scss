@@ -262,16 +262,11 @@ $color-warning-yellow : #ffcc00;
     align-items: flex-start;
   }
 
-.application-table th,
-.application-table td {
-  font-size: 0.9rem;
+  .application-table th,
+  .application-table td {
+    font-size: 0.9rem;
+  }
 }
-}
-
-.save_flag {
-  display: none;
-}
-
 
 .notification {
     padding: 1em 2em;
@@ -363,4 +358,22 @@ $color-warning-yellow : #ffcc00;
 
 .save_flag {
     display: none !important;
+}
+
+.acf-input-view-only {
+    font-family: 'Courier New', Courier, monospace;
+    border: 1px solid $color-black;
+    padding: 5px 10px;
+
+    p {
+        &:first-child {
+            margin-top: 0;
+            padding-top: 0;
+        }
+
+        &:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+    }
 }

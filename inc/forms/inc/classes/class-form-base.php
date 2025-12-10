@@ -6,7 +6,7 @@ if( class_exists( FormBase::class ) ) {
     return;
 }
 
-abstract class FormBase {
+abstract class FormBase implements Form {
     protected string $_id;
     protected array $_pages = [];
     protected string $_success_url = '';
@@ -45,10 +45,8 @@ abstract class FormBase {
             return;
         }
 
-        $page = isset( $_GET['pg'] ) ? intval( $_GET['pg'] ) : 1;
-
         if( 
-            $this->is_last_page( $page )
+            $this->is_last_page( $this->get_page_i() )
             && ! $this->is_submission_ready( $_POST['_acf_post_id'] )
         ) {
             acf_add_validation_error( '', __( 'You must complete the whole form to submit.', 'impeka-forms' ) );
@@ -116,7 +114,7 @@ abstract class FormBase {
         if( ! $this->_is_this_form() )
             return;
 
-        do_action( 'fasmc/submit_form', $form, $post_id );
+        do_action( 'form/submit_form', $form, $post_id );
     }
 
     public function is_last_page( int $pg ) : bool {
@@ -129,6 +127,11 @@ abstract class FormBase {
 
     public function has_page( int $page ) : bool {
         return isset( $this->_pages[$page] );
+    }
+
+    public function get_page_i() : int {
+        $page = isset( $_GET['pg'] ) ? intval( $_GET['pg'] ) : 1;
+        return $page;
     }
     
     public function get_page( int $page ) : FormPage {
@@ -370,7 +373,7 @@ abstract class FormBase {
             $form_status = true;
         }
 
-        do_action( 'impeka/forms/page_saved', $this->_id, $post_id, $current_page, $form_status_before, $form_status );
+        do_action( 'impeka/forms/page_saved', $this, $post_id, $current_page, $form_status_before, $form_status );
 
         $this->_save_meta( $post_id, sprintf( '_form_%s_last_updated', $this->_id ), date( 'Y-m-d H:i:s' ) );
 

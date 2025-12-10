@@ -2,6 +2,7 @@
 
 namespace Impeka\Tools\Forms;
 
+require_once( __DIR__ . '/inc/classes/interface-form.php' );
 require_once( __DIR__ . '/inc/classes/class-form-base.php' );
 require_once( __DIR__ . '/inc/classes/class-form-header.php' );
 require_once( __DIR__ . '/inc/classes/class-form-manager-interface.php' );

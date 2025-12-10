@@ -138,11 +138,6 @@ class ApplicationTemplateHelpers {
 		return sprintf( '%s %s', __( 'Closes', 'applications-and-evaluations' ), wp_date( $format, $end_ts ) );
 	}
 
-	public static function application_status_label( int $post_id ) : string {
-		$status = get_post_meta( $post_id, '_application_status', true );
-		return $status ? (string) $status : __( 'Pending', 'applications-and-evaluations' );
-	}
-
 	public static function application_created_display( int|\WP_Post $application, ?string $format = null ) : string {
 		$format     = $format ?: get_option( 'date_format' ) . ' ' . get_option( 'time_format' );
 		$created_ts = get_post_time( 'U', false, $application );

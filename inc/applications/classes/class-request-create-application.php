@@ -51,7 +51,7 @@ class RequestCreateApplication {
         $post_id = wp_insert_post(
             [
                 'post_type'   => 'application',
-                'post_status' => 'draft',
+                'post_status' => 'publish',
                 'post_title'  => sprintf( '%s - %s', $type->name, wp_date( 'Y-m-d H:i', current_time( 'timestamp' ) ) ),
                 'post_author' => get_current_user_id(),
             ],
@@ -64,6 +64,9 @@ class RequestCreateApplication {
 
         wp_set_object_terms( $post_id, [ $type->term_id ], 'application_type', false );
         wp_set_object_terms( $post_id, [ $session->term_id ], 'application_session', false );
+
+        $application = new Application( $post_id );
+        $application->set_status( 'progress' );
 
         $permalink = get_permalink( $post_id );
         wp_safe_redirect( $permalink ? $permalink : $this->get_archive_link() );

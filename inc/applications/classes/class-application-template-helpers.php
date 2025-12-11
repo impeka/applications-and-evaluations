@@ -164,17 +164,43 @@ class ApplicationTemplateHelpers {
 	public static function render_application_archive_sections() : void {
 		$current_user_id = get_current_user_id();
 		$now             = current_time( 'timestamp' );
-		$types           = get_terms(
-			[
-				'taxonomy'   => 'application_type',
-				'hide_empty' => false,
-				'orderby'    => 'name',
-				'order'      => 'ASC',
-			]
-		);
+		$type_slug       = get_query_var( 'application_type_slug' );
+		$session_slug    = get_query_var( 'application_session_slug' );
+		$session_filter  = null;
 
-		if ( is_wp_error( $types ) ) {
-			$types = [];
+		if ( $type_slug ) {
+			$type_term = get_term_by( 'slug', $type_slug, 'application_type' );
+			$types     = ( $type_term instanceof \WP_Term ) ? [ $type_term ] : [];
+		} else {
+			$types = get_terms(
+				[
+					'taxonomy'   => 'application_type',
+					'hide_empty' => false,
+					'orderby'    => 'name',
+					'order'      => 'ASC',
+				]
+			);
+
+			if ( is_wp_error( $types ) ) {
+				$types = [];
+			}
+		}
+
+		if ( $session_slug ) {
+			$session_term = get_term_by( 'slug', $session_slug, 'application_session' );
+
+			if ( $session_term instanceof \WP_Term ) {
+				// If type filter not provided, derive type from session meta.
+				if ( empty( $type_term ) || ! $type_term instanceof \WP_Term ) {
+					$type_id = get_field( 'application_session_application_type', sprintf( 'application_session_%d', $session_term->term_id ) );
+					if ( $type_id ) {
+						$type_term = get_term( (int) $type_id, 'application_type' );
+					}
+					$types = ( $type_term instanceof \WP_Term ) ? [ $type_term ] : $types;
+				}
+
+				$session_filter = $session_term;
+			}
 		}
 
 		$template = self::locate_template_part( 'application-archive-loop.php' );

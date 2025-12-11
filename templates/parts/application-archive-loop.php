@@ -14,6 +14,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use Impeka\Applications\Application;
 
+$session_filter = isset( $session_filter ) && $session_filter instanceof WP_Term ? $session_filter : null;
+$type_filter    = isset( $type_term ) && $type_term instanceof WP_Term ? $type_term : ( isset( $type_filter ) ? $type_filter : null );
+
 ?>
 
 <?php if ( empty( $types ) ) : ?>
@@ -23,7 +26,12 @@ use Impeka\Applications\Application;
 		<section class="application-type-block">
 			<h2><?php echo esc_html( $type->name ); ?></h2>
 			<?php
-			$sessions = ae_get_sessions_for_type( $type, $now );
+			if ( $session_filter && $type_filter && (int) $type_filter->term_id === (int) $type->term_id ) {
+				// Force a specific session (even if closed) for this type.
+				$sessions = [ $session_filter ];
+			} else {
+				$sessions = ae_get_sessions_for_type( $type, $now );
+			}
 
 			if ( empty( $sessions ) ) :
 				?>

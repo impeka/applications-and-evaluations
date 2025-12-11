@@ -337,15 +337,32 @@ class ApplicationRegistrar {
     }
 
     public function add_application_view_rewrite() : void {
+        // Most specific: single application view-only.
         add_rewrite_rule(
             '^applications/([^/]+)/view/?$',
             'index.php?application=$matches[1]&view_only=1',
+            'top'
+        );
+
+        // Application type + session listing.
+        add_rewrite_rule(
+            '^applications/([^/]+)/([^/]+)/?$',
+            'index.php?post_type=application&application_type_slug=$matches[1]&application_session_slug=$matches[2]',
+            'top'
+        );
+
+        // Application type listing.
+        add_rewrite_rule(
+            '^applications/([^/]+)/?$',
+            'index.php?post_type=application&application_type_slug=$matches[1]',
             'top'
         );
     }
 
     public function add_query_vars( array $vars ) : array {
         $vars[] = 'view_only';
+        $vars[] = 'application_type_slug';
+        $vars[] = 'application_session_slug';
         return $vars;
     }
 

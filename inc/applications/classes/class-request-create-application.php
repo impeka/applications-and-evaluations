@@ -79,6 +79,12 @@ class RequestCreateApplication {
     }
 
     protected function session_is_active( \WP_Term $session ) : bool {
+        $always_visible = (bool) get_field( 'application_session_visibility_out_of_session', sprintf( 'application_session_%d', $session->term_id ) );
+
+        if ( $always_visible ) {
+            return true;
+        }
+
         $now   = current_time( 'timestamp' );
         $start = get_field( 'application_session_start', sprintf( 'application_session_%d', $session->term_id ) );
         $end   = get_field( 'application_session_end', sprintf( 'application_session_%d', $session->term_id ) );

@@ -39,8 +39,9 @@ use Impeka\Applications\Application;
 					$limit_reached   = $limit > 0 && $app_count >= $limit;
 					$session_start_ts = ae_session_start_ts( $session );
 					$session_end_ts   = ae_session_end_ts( $session );
+					$session_active   = ae_is_session_active( $session, $now );
 					$session_closed   = $session_end_ts && $session_end_ts < $now;
-					$button_disabled = $limit_reached || $session_closed || ! is_user_logged_in();
+					$button_disabled  = $limit_reached || $session_closed || ! is_user_logged_in();
 					?>
 					<article class="application-session">
 						<header class="application-session__header">
@@ -100,11 +101,12 @@ use Impeka\Applications\Application;
 											<?php
 											$application = new Application( $application_post->ID );
 											$title       = get_the_title( $application_post ) ?: sprintf( __( 'Application #%d', 'applications-and-evaluations' ), $application_post->ID );
-											$edit_link   = get_permalink( $application_post );
-											$view_link   = get_permalink( $application_post ).'/view/';
-											$delete_link = get_delete_post_link( $application_post->ID, '', false );
-											$created     = ae_application_created_display( $application_post );
-											$edit_disabled = $session_closed && ! $application->is_unlocked();
+											$edit_link     = get_permalink( $application_post );
+											$view_link     = get_permalink( $application_post ).'/view/';
+											$delete_link   = get_delete_post_link( $application_post->ID, '', false );
+											$created       = ae_application_created_display( $application_post );
+											$edit_disabled   = $session_closed && ! $application->is_unlocked();
+											$delete_disabled = ! $session_active;
 											?>
 											<tr>
 												<td><?php echo esc_html( $title ); ?></td>
@@ -140,17 +142,17 @@ use Impeka\Applications\Application;
 															<span class="screen-reader-text"><?php esc_html_e( 'View application', 'applications-and-evaluations' ); ?></span>
 														</a>
 													<?php endif; ?>
-													<?php if ( $delete_link ) : ?>
+													<?php if ( $delete_link && ! $delete_disabled ) : ?>
 														<a class="application-table__action application-table__action--delete" href="<?php echo esc_url( $delete_link ); ?>">
 															<i class="fa-light fa-trash" aria-hidden="true"></i>
 															<span class="screen-reader-text"><?php esc_html_e( 'Delete application', 'applications-and-evaluations' ); ?></span>
 														</a>
+													<?php elseif ( $delete_disabled ) : ?>
+														<span class="application-table__action application-table__action--delete is-disabled" aria-disabled="true">
+															<i class="fa-light fa-trash" aria-hidden="true"></i>
+															<span class="screen-reader-text"><?php esc_html_e( 'Delete disabled; session closed.', 'applications-and-evaluations' ); ?></span>
+														</span>
 													<?php endif; ?>
-
-													<a class="application-table__action application-table__action--view" href="<?php echo esc_url( $view_link ); ?>">
-															<i class="fa-thin fa-eye"aria-hidden="true"></i>
-															<span class="screen-reader-text"><?php esc_html_e( 'View application', 'applications-and-evaluations' ); ?></span>
-														</a>
 												</td>
 											</tr>
 										<?php endforeach; ?>

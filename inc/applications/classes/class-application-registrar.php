@@ -23,9 +23,11 @@ class ApplicationRegistrar {
         add_filter( 'acf/load_field/name=application_form_field_group', [ $this, 'populate_field_group_choices' ] );
         add_filter( 'manage_application_posts_columns', [ $this, 'add_status_column' ] );
         add_action( 'manage_application_posts_custom_column', [ $this, 'render_status_column' ], 10, 2 );
+        add_action( 'manage_application_posts_custom_column', [ $this, 'render_lock_column' ], 10, 2 );
         add_filter( 'impeka/forms/success_url', [ $this, 'set_application_success_url' ], 10, 3 );
         add_action( 'init', [ $this, 'add_application_view_rewrite' ], 15 );
         add_filter( 'query_vars', [ $this, 'add_query_vars' ] );
+        add_filter( 'map_meta_cap', [ $this, 'prevent_delete_when_session_closed' ], 10, 4 );
     }
 
     public function set_application_success_url( string $success_url, string $form_id, string $object_id ) : string {
@@ -198,6 +200,16 @@ class ApplicationRegistrar {
                         'wrapper'       => [ 'width' => '50' ],
                         'default_value' => '',
                     ],
+                    [
+                        'key'           => 'field_application_session_visibility_out_of_session',
+                        'label'         => __( 'Visibility When Out of Session', 'applications-and-evaluations' ),
+                        'name'          => 'application_session_visibility_out_of_session',
+                        'type'          => 'true_false',
+                        'message'       => __( 'Keep this session selectable even when outside its open/close dates.', 'applications-and-evaluations' ),
+                        'ui'            => 1,
+                        'wrapper'       => [ 'width' => '50' ],
+                        'default_value' => 0,
+                    ],
                 ],
             ]
         );
@@ -278,6 +290,8 @@ class ApplicationRegistrar {
             }
         }
 
+        $new_columns['is_unlocked'] = __( 'Unlocked', 'applications-and-evaluations' );
+
         return $new_columns;
     }
 
@@ -307,6 +321,21 @@ class ApplicationRegistrar {
         }
     }
 
+    public function render_lock_column( string $column, int $post_id ) : void {
+        if ( $column !== 'is_unlocked' ) {
+            return;
+        }
+
+        $application = new Application( $post_id );
+
+        if( $application->is_unlocked() ) {
+            echo '<i class="fa-regular fa-unlock success-green-color"></i>';
+        }
+        else {
+            echo '<i class="fa-regular fa-lock error-red-color"></i>';
+        }
+    }
+
     public function add_application_view_rewrite() : void {
         add_rewrite_rule(
             '^applications/([^/]+)/view/?$',
@@ -318,5 +347,49 @@ class ApplicationRegistrar {
     public function add_query_vars( array $vars ) : array {
         $vars[] = 'view_only';
         return $vars;
+    }
+
+    /**
+     * Prevent users from deleting applications when their session is closed.
+     * Admins (delete_others_posts/manage_options) are exempt.
+     */
+    public function prevent_delete_when_session_closed( array $caps, string $cap, int $user_id, array $args ) : array {
+        if ( $cap !== 'delete_post' ) {
+            return $caps;
+        }
+
+        $post_id = isset( $args[0] ) ? (int) $args[0] : 0;
+
+        if ( ! $post_id ) {
+            return $caps;
+        }
+
+        $post = get_post( $post_id );
+
+        if ( ! $post instanceof \WP_Post || $post->post_type !== 'application' ) {
+            return $caps;
+        }
+
+        // Let admins / editors with delete_others bypass.
+        if ( user_can( $user_id, 'manage_options' ) || user_can( $user_id, 'delete_others_posts' ) ) {
+            return $caps;
+        }
+
+        $sessions = wp_get_post_terms( $post_id, 'application_session' );
+        $session  = is_array( $sessions ) && ! empty( $sessions ) && $sessions[0] instanceof \WP_Term ? $sessions[0] : null;
+
+        if ( ! $session ) {
+            // If no session linked, block deletion for safety.
+            return [ 'do_not_allow' ];
+        }
+
+        $is_active = ApplicationTemplateHelpers::is_session_active( $session );
+
+        if ( $is_active ) {
+            return $caps;
+        }
+
+        // Block delete for closed sessions.
+        return [ 'do_not_allow' ];
     }
 }

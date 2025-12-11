@@ -253,6 +253,17 @@ $color-warning-yellow : #ffcc00;
         color: #991b1b;
       }
     }
+
+    .application-table__action.is-disabled {
+      background: #f3f4f6;
+      color: rgba(17, 24, 39, 0.35);
+      pointer-events: none;
+      cursor: not-allowed;
+
+      i {
+        opacity: 0.6;
+      }
+    }
   }
 }
 

@@ -9,6 +9,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 require_once __DIR__ . '/classes/interface-form-submission-error.php';
 require_once __DIR__ . '/classes/class-form-submission-error-base.php';
 require_once __DIR__ . '/classes/class-application-type-form-builder.php';
+require_once __DIR__ . '/classes/interface-application-interface.php';
+require_once __DIR__ . '/classes/class-application-base.php';
 require_once __DIR__ . '/classes/class-application.php';
 require_once __DIR__ . '/classes/class-application-registrar.php';
 require_once __DIR__ . '/classes/class-application-template-manager.php';

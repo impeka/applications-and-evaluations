@@ -39,6 +39,19 @@ class ApplicationTemplateHelpers {
 		return true;
 	}
 
+	/**
+	 * Returns true if the session is either active or explicitly visible when out of session.
+	 */
+	public static function is_session_visible( \WP_Term $session, ?int $now = null ) : bool {
+		$always_show = (bool) get_field( 'application_session_visibility_out_of_session', sprintf( 'application_session_%d', $session->term_id ) );
+
+		if ( $always_show ) {
+			return true;
+		}
+
+		return self::is_session_active( $session, $now );
+	}
+
 	public static function get_sessions_for_type( \WP_Term $type, ?int $now = null ) : array {
 		$now      = $now ?? current_time( 'timestamp' );
 		$sessions = get_terms(
@@ -65,7 +78,7 @@ class ApplicationTemplateHelpers {
 			array_filter(
 				$sessions,
 				static function ( $session ) use ( $now ) {
-					return self::is_session_active( $session, $now );
+					return self::is_session_visible( $session, $now );
 				}
 			)
 		);

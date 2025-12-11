@@ -1,0 +1,21 @@
+$color-consortium-purple : #535aa2;
+$color-consortium-green : #349d65;
+$color-consortium-orange : #f9a94a;
+$color-black : #232b2b;
+$color-light-gray : #f5f5f5;
+$color-dark-gray : #B8B8B8;
+$color-success-green : #5cb85c;
+$color-error-red : #ff3333;
+$color-warning-yellow : #ffcc00;
+
+.success-green-color {
+    color: $color-success-green;
+}
+
+.error-red-color {
+    color: $color-error-red;
+}
+
+.save_flag {
+    display: none !important;
+}

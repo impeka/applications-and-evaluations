@@ -28,6 +28,12 @@ namespace {
 		}
 	}
 
+	if ( ! function_exists( 'ae_is_session_visible' ) ) {
+		function ae_is_session_visible( \WP_Term $session, ?int $now = null ) : bool {
+			return ApplicationTemplateHelpers::is_session_visible( $session, $now );
+		}
+	}
+
 	if ( ! function_exists( 'ae_get_sessions_for_type' ) ) {
 		function ae_get_sessions_for_type( \WP_Term $type, int $now ) : array {
 			return ApplicationTemplateHelpers::get_sessions_for_type( $type, $now );

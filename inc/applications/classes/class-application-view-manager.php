@@ -15,7 +15,7 @@ class ApplicationViewManager {
         add_filter( 'impeka/forms/get_form/page', [$this, 'page'], 10, 3 );
         add_filter( 'impeka/forms/get_nav', [$this, 'get_nav'], 10, 3 );
 
-        foreach( ['text', 'textarea', 'email', 'tel', 'number', 'maskfield'] as $field_type ) {
+        foreach( ['text', 'textarea', 'email', 'tel', 'number', 'maskfield', 'score', 'score_subtotal', 'score_total'] as $field_type ) {
             add_action( sprintf( 'acf/render_field/type=%s', $field_type ), [$this, 'render_value_only'], 9 );
             add_action( sprintf( 'acf/render_field/type=%s', $field_type ), [$this, 'render_value_only_exit'], 11 );
         }
@@ -30,7 +30,7 @@ class ApplicationViewManager {
     public function render_select_value_only( array $field ) : void {
         global $wp_query;
 
-        if( isset( $wp_query->query_vars['show_applicant'] ) ) {
+        if( isset( $wp_query->query_vars['view_only'] ) ) {
             $post_id = acf_get_form_data( 'post_id' );
             $field_object = get_field_object( $field['key'], $post_id );
             $value = get_field( $field['key'], $post_id );
@@ -53,16 +53,38 @@ class ApplicationViewManager {
     public function render_select_value_only_exit( array $field ) : void {
         global $wp_query;
 
-        if( isset( $wp_query->query_vars['show_applicant'] ) ) {
+        if( isset( $wp_query->query_vars['view_only'] ) ) {
             echo '</div>';
         }
     }
 
-    public function render_value_only( array $field ) : void {
-        global $wp_query;
+	public function render_value_only( array $field ) : void {
+		global $wp_query;
 
         if( isset( $wp_query->query_vars['view_only'] ) ) {
-            $value = ! empty( $field['value'] ) ? $field['value'] : '&nbsp;';
+            $post_id = acf_get_form_data( 'post_id' ) ?: get_the_ID();
+            $value   = $field['value'] ?? '';
+
+            if ( $value === '' ) {
+                // Fallback to stored value if ACF didn't populate the field array (seen with custom fields).
+                $value = get_field( $field['key'] ?? '', $post_id );
+            }
+
+            $type  = $field['type'] ?? '';
+            $group = $field['data-score-group'] ?? '';
+
+            // Compute score totals/subtotals from stored scores.
+            if ( in_array( $type, [ 'score_total', 'score_subtotal' ], true ) && function_exists( 'impeka_ae_collect_score_values' ) ) {
+                $scores = impeka_ae_collect_score_values( $post_id );
+
+                if ( $type === 'score_total' ) {
+                    $value = $group !== '' ? ( $scores['groups'][ $group ] ?? 0 ) : ( $scores['all'] ?? 0 );
+                } elseif ( $type === 'score_subtotal' ) {
+                    $value = $group !== '' ? ( $scores['groups'][ $group ] ?? 0 ) : 0;
+                }
+            }
+
+            $value = $value !== '' ? $value : '&nbsp;';
             echo sprintf( '<div class="acf-input-wrap acf-input-view-only">%s</div>', apply_filters( 'the_content', $value ) );
             ob_start();
         }

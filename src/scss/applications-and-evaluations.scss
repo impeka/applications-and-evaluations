@@ -224,7 +224,8 @@ $color-warning-yellow : #ffcc00;
     gap: 0.5rem;
     align-items: center;
 
-    a {
+    a,
+    button {
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -235,6 +236,9 @@ $color-warning-yellow : #ffcc00;
       color: #4338ca;
       text-decoration: none;
       transition: background 0.15s ease, color 0.15s ease;
+      border: none;
+      padding: 0;
+      cursor: pointer;
 
       &:hover,
       &:focus {

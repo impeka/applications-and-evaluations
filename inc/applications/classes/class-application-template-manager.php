@@ -17,8 +17,18 @@ class ApplicationTemplateManager {
             return $located ?: $template;
         }
 
+        if ( is_post_type_archive( 'evaluation' ) ) {
+            $located = $this->locate_template( 'archive-evaluation.php' );
+            return $located ?: $template;
+        }
+
         if ( is_singular( 'application' ) ) {
             $located = $this->locate_template( 'single-application.php' );
+            return $located ?: $template;
+        }
+
+        if ( is_singular( 'evaluation' ) ) {
+            $located = $this->locate_template( 'single-evaluation.php' );
             return $located ?: $template;
         }
 

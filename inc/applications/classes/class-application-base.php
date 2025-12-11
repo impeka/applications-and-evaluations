@@ -50,7 +50,7 @@ abstract class ApplicationBase implements ApplicationInterface {
         return in_array( $page, $completed_pages );
     }
 
-    public function get_first_incomplete_page() : int {
+    public function get_first_incomplete_page() : ?int {
         $completed_pages = get_post_meta( $this->_post->ID, '_completed_pages', true );
         $completed_pages = is_array( $completed_pages ) ? $completed_pages : [];
         

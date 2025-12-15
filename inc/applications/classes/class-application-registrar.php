@@ -23,7 +23,10 @@ class ApplicationRegistrar {
         add_filter( 'acf/load_field/name=application_form_field_group', [ $this, 'populate_field_group_choices' ] );
         add_filter( 'manage_application_posts_columns', [ $this, 'add_status_column' ] );
         add_action( 'manage_application_posts_custom_column', [ $this, 'render_status_column' ], 10, 2 );
+        add_action( 'manage_application_posts_custom_column', [ $this, 'render_submit_date_column' ], 10, 2 );
         add_action( 'manage_application_posts_custom_column', [ $this, 'render_lock_column' ], 10, 2 );
+        add_action( 'restrict_manage_posts', [ $this, 'add_status_admin_filter' ] );
+        add_filter( 'parse_query', [ $this, 'apply_status_admin_filter' ] );
         add_filter( 'impeka/forms/success_url', [ $this, 'set_application_success_url' ], 10, 3 );
         add_action( 'init', [ $this, 'add_application_view_rewrite' ], 15 );
         add_filter( 'query_vars', [ $this, 'add_query_vars' ] );
@@ -31,6 +34,11 @@ class ApplicationRegistrar {
     }
 
     public function set_application_success_url( string $success_url, string $form_id, string $object_id ) : string {
+        // Only override for application-type forms; leave other forms (e.g. evaluations) untouched.
+        if ( strpos( $form_id, 'application-type-' ) !== 0 ) {
+            return $success_url;
+        }
+
         $success_url = get_post_type_archive_link( 'application' );
         $success_url = add_query_arg( 'success', true, $success_url );
         return $success_url;
@@ -210,6 +218,21 @@ class ApplicationRegistrar {
                         'wrapper'       => [ 'width' => '50' ],
                         'default_value' => 0,
                     ],
+                    [
+                        'key'          => 'field_application_session_email_subject',
+                        'label'        => __( 'Confirmation Email Subject', 'applications-and-evaluations' ),
+                        'name'         => 'application_session_email_subject',
+                        'type'         => 'text',
+                        'instructions' => __( 'Email subject sent to applicants after submission.', 'applications-and-evaluations' ),
+                    ],
+                    [
+                        'key'          => 'field_application_session_email_message',
+                        'label'        => __( 'Confirmation Email Message', 'applications-and-evaluations' ),
+                        'name'         => 'application_session_email_message',
+                        'type'         => 'textarea',
+                        'rows'         => 4,
+                        'instructions' => __( 'Email body sent to applicants after submission.', 'applications-and-evaluations' ),
+                    ],
                 ],
             ]
         );
@@ -265,13 +288,21 @@ class ApplicationRegistrar {
     public function populate_field_group_choices( array $field ) : array {
         $groups  = function_exists( 'acf_get_field_groups' ) ? acf_get_field_groups() : [];
         $choices = [];
+        $excluded_keys = function_exists( '\ae_get_plugin_field_group_exclusions' ) ? \ae_get_plugin_field_group_exclusions() : [];
 
         foreach ( $groups as $group ) {
-            if ( empty( $group['key'] ) || empty( $group['title'] ) ) {
+            $group_key   = $group['key'] ?? '';
+            $group_title = $group['title'] ?? '';
+
+            if ( $group_key === '' || $group_title === '' ) {
                 continue;
             }
 
-            $choices[ $group['key'] ] = sprintf( '%s (%s)', $group['title'], $group['key'] );
+            if ( in_array( $group_key, $excluded_keys, true ) ) {
+                continue;
+            }
+
+            $choices[ $group_key ] = sprintf( '%s (%s)', $group_title, $group_key );
         }
 
         $field['choices'] = $choices;
@@ -281,16 +312,23 @@ class ApplicationRegistrar {
 
     public function add_status_column( array $columns ) : array {
         $new_columns = [];
+        $date_label  = $columns['date'] ?? __( 'Date', 'applications-and-evaluations' );
 
         foreach ( $columns as $key => $label ) {
+            if ( $key === 'date' ) {
+                continue;
+            }
+
             $new_columns[ $key ] = $label;
 
             if ( $key === 'title' ) {
                 $new_columns['application_status'] = __( 'Status', 'applications-and-evaluations' );
+                $new_columns['application_submit_date'] = __( 'Submitted', 'applications-and-evaluations' );
             }
         }
 
         $new_columns['is_unlocked'] = __( 'Unlocked', 'applications-and-evaluations' );
+        $new_columns['date']        = $date_label;
 
         return $new_columns;
     }
@@ -305,20 +343,28 @@ class ApplicationRegistrar {
             $status      = $application->get_status();
 
             switch ( $status ) {
-                case 'progress':
-                    $progress = $application->get_progress_percentage();
-                    printf( '<progress class="application__progress" max="100" value="%1$s">%1$s</progress>', $progress );
-                    break;
                 case 'submit':
                     esc_html_e( 'Submitted', 'applications-and-evaluations' );
                     break;
                 default:
-                    echo $status !== '' ? esc_html( $status ) : '—';
+                    // Unknown status: treat as zero progress.
+                    $progress = $status === 'progress' ? $application->get_progress_percentage() : 0;
+                    printf( '<progress class="application__progress" max="100" value="%1$s">%1$s</progress>', $progress );
                     break;
             }
         } catch ( \Throwable $e ) {
-            echo '—';
+            printf( '<progress class="application__progress" max="100" value="%1$s">%1$s</progress>', 0 );
         }
+    }
+
+    public function render_submit_date_column( string $column, int $post_id ) : void {
+        if ( $column !== 'application_submit_date' ) {
+            return;
+        }
+
+        $application = new Application( $post_id );
+        $format      = sprintf( '%s %s', get_option( 'date_format' ), get_option( 'time_format' ) );
+        echo esc_html( $application->get_submit_date( $format ) );
     }
 
     public function render_lock_column( string $column, int $post_id ) : void {
@@ -336,6 +382,57 @@ class ApplicationRegistrar {
         }
     }
 
+    /**
+     * Adds a "Published only" filter dropdown on the Applications list table.
+     */
+    public function add_status_admin_filter() : void {
+        global $typenow, $pagenow;
+
+        if ( $pagenow !== 'edit.php' || $typenow !== 'application' ) {
+            return;
+        }
+
+        $selected = isset( $_GET['application_status_filter'] ) ? sanitize_text_field( wp_unslash( $_GET['application_status_filter'] ) ) : '';
+        ?>
+        <select name="application_status_filter">
+            <option value=""><?php esc_html_e( 'All statuses', 'applications-and-evaluations' ); ?></option>
+            <option value="submitted" <?php selected( $selected, 'submitted' ); ?>><?php esc_html_e( 'Submitted only', 'applications-and-evaluations' ); ?></option>
+        </select>
+        <?php
+    }
+
+    /**
+     * Applies the status filter to the Applications query.
+     */
+    public function apply_status_admin_filter( $query ) {
+        global $pagenow;
+
+        if ( ! is_admin() || $pagenow !== 'edit.php' || ! $query->is_main_query() ) {
+            return $query;
+        }
+
+        $post_type = $query->get( 'post_type' );
+
+        if ( $post_type !== 'application' ) {
+            return $query;
+        }
+
+        $filter = isset( $_GET['application_status_filter'] ) ? sanitize_text_field( wp_unslash( $_GET['application_status_filter'] ) ) : '';
+
+        if ( $filter === 'submitted' ) {
+            $meta_query   = $query->get( 'meta_query' );
+            $meta_query   = is_array( $meta_query ) ? $meta_query : [];
+            $meta_query[] = [
+                'key'     => '_application_status',
+                'value'   => 'submit',
+                'compare' => '=',
+            ];
+            $query->set( 'meta_query', $meta_query );
+        }
+
+        return $query;
+    }
+
     public function add_application_view_rewrite() : void {
         // Most specific: single application view-only.
         add_rewrite_rule(
@@ -344,16 +441,16 @@ class ApplicationRegistrar {
             'top'
         );
 
-        // Application type + session listing.
+        // Application type + session listing (namespaced to avoid single slug collisions).
         add_rewrite_rule(
-            '^applications/([^/]+)/([^/]+)/?$',
+            '^applications/type/([^/]+)/([^/]+)/?$',
             'index.php?post_type=application&application_type_slug=$matches[1]&application_session_slug=$matches[2]',
             'top'
         );
 
-        // Application type listing.
+        // Application type listing (namespaced to avoid single slug collisions).
         add_rewrite_rule(
-            '^applications/([^/]+)/?$',
+            '^applications/type/([^/]+)/?$',
             'index.php?post_type=application&application_type_slug=$matches[1]',
             'top'
         );

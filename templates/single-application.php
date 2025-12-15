@@ -9,6 +9,11 @@
 use Impeka\Applications\Application;
 use Impeka\Tools\Forms\PostForm;
 
+// Ensure ACF form hooks are bootstrapped for frontend form rendering.
+if ( function_exists( 'acf_form_head' ) && ! did_action( 'acf_form_head' ) ) {
+	acf_form_head();
+}
+
 get_header();
 ?>
 
@@ -23,6 +28,7 @@ get_header();
 		try {
 			$application = new Application( get_the_ID() );
 			$form        = $application->get_form();
+			
 		} catch ( \Throwable $e ) {
 			$form = null;
 		}

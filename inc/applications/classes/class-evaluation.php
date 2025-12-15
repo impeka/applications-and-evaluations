@@ -41,8 +41,34 @@ class Evaluation extends ApplicationBase {
 		update_post_meta( $this->_post->ID, '_evaluation_application_id', $application_id );
 	}
 
+	public function set_submit_date( \DateTimeImmutable $date ) : void {
+		update_post_meta( $this->_post->ID, '_evaluation_submit_date', $date->format( 'Y-m-d H:i:s' ) );
+	}
+
+	public function get_submit_date( string $format = 'Y-m-d H:i:s' ) : string {
+		$raw = get_post_meta( $this->_post->ID, '_evaluation_submit_date', true );
+
+		if ( ! $raw ) {
+			return 'N/A';
+		}
+
+		$date = \DateTime::createFromFormat( 'Y-m-d H:i:s', $raw );
+
+		if ( ! $date ) {
+			return 'N/A';
+		}
+
+		return date_i18n( $format, $date->format( 'U' ) );
+	}
+
 	protected function get_completed_pages() : array {
 		$completed_pages = get_post_meta( $this->_post->ID, '_evaluation_completed_pages', true );
+
+		if ( ! is_array( $completed_pages ) ) {
+			// Fallback to the shared meta key used by the form base class.
+			$completed_pages = get_post_meta( $this->_post->ID, '_completed_pages', true );
+		}
+
 		return is_array( $completed_pages ) ? $completed_pages : [];
 	}
 

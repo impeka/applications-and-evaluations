@@ -21,6 +21,12 @@ class EvaluationRegistrar {
 		add_action( 'init', [ $this, 'register_post_type_and_tax' ], 5 );
 		add_action( 'acf/init', [ $this, 'register_field_groups' ] );
 		add_filter( 'acf/fields/taxonomy/result/name=evaluation_category_session', [ $this, 'format_session_option_label' ], 10, 4 );
+		add_filter( 'manage_evaluation_posts_columns', [ $this, 'add_admin_columns' ] );
+		add_action( 'manage_evaluation_posts_custom_column', [ $this, 'render_status_column' ], 10, 2 );
+		add_action( 'manage_evaluation_posts_custom_column', [ $this, 'render_submit_date_column' ], 10, 2 );
+		add_action( 'manage_evaluation_posts_custom_column', [ $this, 'render_lock_column' ], 10, 2 );
+		add_action( 'restrict_manage_posts', [ $this, 'add_status_admin_filter' ] );
+		add_filter( 'parse_query', [ $this, 'apply_status_admin_filter' ] );
 	}
 
 	public function register_post_type_and_tax() : void {
@@ -151,6 +157,21 @@ class EvaluationRegistrar {
 						],
 						'instructions'      => __( 'Select specific evaluators. Uses a searchable multi-select to avoid long lists.', 'applications-and-evaluations' ),
 					],
+					[
+						'key'          => 'field_evaluation_category_email_subject',
+						'label'        => __( 'Confirmation Email Subject', 'applications-and-evaluations' ),
+						'name'         => 'evaluation_category_email_subject',
+						'type'         => 'text',
+						'instructions' => __( 'Email subject sent to evaluators after they submit an evaluation.', 'applications-and-evaluations' ),
+					],
+					[
+						'key'          => 'field_evaluation_category_email_message',
+						'label'        => __( 'Confirmation Email Message', 'applications-and-evaluations' ),
+						'name'         => 'evaluation_category_email_message',
+						'type'         => 'textarea',
+						'rows'         => 4,
+						'instructions' => __( 'Email body sent to evaluators after submission.', 'applications-and-evaluations' ),
+					],
 				],
 			]
 		);
@@ -172,5 +193,127 @@ class EvaluationRegistrar {
 		}
 
 		return $term_title;
+	}
+
+	public function add_admin_columns( array $columns ) : array {
+		$new_columns = [];
+		$date_label  = $columns['date'] ?? __( 'Date', 'applications-and-evaluations' );
+
+		foreach ( $columns as $key => $label ) {
+			if ( $key === 'date' ) {
+				continue;
+			}
+
+			$new_columns[ $key ] = $label;
+
+			if ( $key === 'title' ) {
+				$new_columns['evaluation_status']       = __( 'Status', 'applications-and-evaluations' );
+				$new_columns['evaluation_submit_date']  = __( 'Submitted', 'applications-and-evaluations' );
+			}
+		}
+
+		$new_columns['is_unlocked'] = __( 'Unlocked', 'applications-and-evaluations' );
+		$new_columns['date']        = $date_label;
+
+		return $new_columns;
+	}
+
+	public function render_status_column( string $column, int $post_id ) : void {
+		if ( $column !== 'evaluation_status' ) {
+			return;
+		}
+
+		try {
+			$evaluation = new Evaluation( $post_id );
+			$status     = $evaluation->get_status();
+
+			switch ( $status ) {
+				case 'submit':
+					esc_html_e( 'Submitted', 'applications-and-evaluations' );
+					break;
+				default:
+					// Unknown status: treat as zero progress.
+					$progress = $status === 'progress' ? $evaluation->get_progress_percentage() : 0;
+					printf( '<progress class="application__progress" max="100" value="%1$s">%1$s</progress>', $progress );
+					break;
+			}
+		} catch ( \Throwable $e ) {
+			printf( '<progress class="application__progress" max="100" value="%1$s">%1$s</progress>', 0 );
+		}
+	}
+
+	public function render_submit_date_column( string $column, int $post_id ) : void {
+		if ( $column !== 'evaluation_submit_date' ) {
+			return;
+		}
+
+		$evaluation = new Evaluation( $post_id );
+		$format     = sprintf( '%s %s', get_option( 'date_format' ), get_option( 'time_format' ) );
+		echo esc_html( $evaluation->get_submit_date( $format ) );
+	}
+
+	public function render_lock_column( string $column, int $post_id ) : void {
+		if ( $column !== 'is_unlocked' ) {
+			return;
+		}
+
+		$evaluation = new Evaluation( $post_id );
+
+		if ( $evaluation->is_unlocked() ) {
+			echo '<i class="fa-regular fa-unlock success-green-color"></i>';
+		} else {
+			echo '<i class="fa-regular fa-lock error-red-color"></i>';
+		}
+	}
+
+	/**
+	 * Adds a "Published only" filter dropdown on the Evaluations list table.
+	 */
+	public function add_status_admin_filter() : void {
+		global $typenow, $pagenow;
+
+		if ( $pagenow !== 'edit.php' || $typenow !== 'evaluation' ) {
+			return;
+		}
+
+		$selected = isset( $_GET['evaluation_status_filter'] ) ? sanitize_text_field( wp_unslash( $_GET['evaluation_status_filter'] ) ) : '';
+		?>
+		<select name="evaluation_status_filter">
+			<option value=""><?php esc_html_e( 'All statuses', 'applications-and-evaluations' ); ?></option>
+			<option value="submitted" <?php selected( $selected, 'submitted' ); ?>><?php esc_html_e( 'Submitted only', 'applications-and-evaluations' ); ?></option>
+		</select>
+		<?php
+	}
+
+	/**
+	 * Applies the status filter to the Evaluations query.
+	 */
+	public function apply_status_admin_filter( $query ) {
+		global $pagenow;
+
+		if ( ! is_admin() || $pagenow !== 'edit.php' || ! $query->is_main_query() ) {
+			return $query;
+		}
+
+		$post_type = $query->get( 'post_type' );
+
+		if ( $post_type !== 'evaluation' ) {
+			return $query;
+		}
+
+		$filter = isset( $_GET['evaluation_status_filter'] ) ? sanitize_text_field( wp_unslash( $_GET['evaluation_status_filter'] ) ) : '';
+
+		if ( $filter === 'submitted' ) {
+			$meta_query   = $query->get( 'meta_query' );
+			$meta_query   = is_array( $meta_query ) ? $meta_query : [];
+			$meta_query[] = [
+				'key'     => '_evaluation_status',
+				'value'   => 'submit',
+				'compare' => '=',
+			];
+			$query->set( 'meta_query', $meta_query );
+		}
+
+		return $query;
 	}
 }

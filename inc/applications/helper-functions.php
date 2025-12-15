@@ -63,4 +63,54 @@ namespace {
 			ApplicationTemplateHelpers::render_application_archive_sections();
 		}
 	}
+
+	if ( ! function_exists( 'ae_get_plugin_field_group_exclusions' ) ) {
+		function ae_get_plugin_field_group_exclusions() : array {
+			$keys = [
+				'group_application_type_form_builder',
+				'group_application_session_settings',
+				'group_evaluation_form_builder',
+				'group_evaluation_category_settings',
+				'group_672a73e204b12',
+			];
+
+			return apply_filters( 'applications_and_evaluations/excluded_field_group_keys', $keys );
+		}
+	}
+
+	if ( ! function_exists( 'ae_get_settings' ) ) {
+		function ae_get_settings() : array {
+			$defaults = [
+				'sender_name'  => get_bloginfo( 'name' ),
+				'sender_email' => get_bloginfo( 'admin_email' ),
+				'disable_cc'   => 0,
+			];
+
+			$settings = get_option( 'ae_settings', [] );
+			$settings = is_array( $settings ) ? array_merge( $defaults, $settings ) : $defaults;
+
+			return $settings;
+		}
+	}
+
+	if ( ! function_exists( 'ae_get_sender_name' ) ) {
+		function ae_get_sender_name() : string {
+			$settings = ae_get_settings();
+			return $settings['sender_name'] ?? get_bloginfo( 'name' );
+		}
+	}
+
+	if ( ! function_exists( 'ae_get_sender_email' ) ) {
+		function ae_get_sender_email() : string {
+			$settings = ae_get_settings();
+			return $settings['sender_email'] ?? get_bloginfo( 'admin_email' );
+		}
+	}
+
+	if ( ! function_exists( 'ae_cc_admin_emails_enabled' ) ) {
+		function ae_cc_admin_emails_enabled() : bool {
+			$settings = ae_get_settings();
+			return empty( $settings['disable_cc'] );
+		}
+	}
 }

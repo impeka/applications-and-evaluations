@@ -328,7 +328,9 @@ $color-warning-yellow : #ffcc00;
 
 // Increase specificity on application pages to win against theme defaults.
 .single-application .pages-list,
-.post-type-application .pages-list {
+.post-type-application .pages-list,
+.single-evaluation .pages-list,
+.post-type-evaluation .pages-list {
     margin: 0 auto 1em;
     padding: 0;
     display: flex;
@@ -342,7 +344,9 @@ $color-warning-yellow : #ffcc00;
 }
 
 .single-application .pages-list__item,
-.post-type-application .pages-list__item {
+.post-type-application .pages-list__item,
+.single-evaluation .pages-list__item,
+.post-type-evaluation .pages-list__item {
     margin: 0;
     padding: 0;
 }

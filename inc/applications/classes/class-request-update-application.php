@@ -37,6 +37,13 @@ class RequestUpdateApplication {
             && $form_status
         ) {
             $application->set_submit_date( new \DateTimeImmutable() );
+
+            // Send confirmation emails on first completion.
+            try {
+                ( new ApplicationSubmittedEmail() )->send( $application );
+            } catch ( \Throwable $e ) {
+                // Swallow email errors to avoid blocking submission.
+            }
         }
     }
 }

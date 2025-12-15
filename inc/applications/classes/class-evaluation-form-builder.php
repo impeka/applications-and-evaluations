@@ -17,9 +17,11 @@ class EvaluationFormBuilder {
 	private static ?EvaluationFormBuilder $instance = null;
 
 	private function __construct() {
-		add_action( 'init', [ $this, 'prime_all_forms' ], 4 );
+		// Run after the evaluation taxonomy is registered so get_terms() succeeds.
+		add_action( 'init', [ $this, 'prime_all_forms' ], 6 );
 		add_action( 'acf/init', [ $this, 'register_form_builder_fields' ] );
 		add_filter( 'acf/load_field/name=evaluation_form_field_group', [ $this, 'populate_field_group_choices' ] );
+		add_filter( 'impeka/forms/success_url', [ $this, 'set_evaluation_success_url' ], 10, 3 );
 	}
 
 	public static function get_instance() : self {
@@ -94,18 +96,40 @@ class EvaluationFormBuilder {
 	public function populate_field_group_choices( array $field ) : array {
 		$groups  = function_exists( 'acf_get_field_groups' ) ? acf_get_field_groups() : [];
 		$choices = [];
+		$excluded_keys = function_exists( '\ae_get_plugin_field_group_exclusions' ) ? \ae_get_plugin_field_group_exclusions() : [];
 
 		foreach ( $groups as $group ) {
-			if ( empty( $group['key'] ) || empty( $group['title'] ) ) {
+			$group_key   = $group['key'] ?? '';
+			$group_title = $group['title'] ?? '';
+
+			if ( $group_key === '' || $group_title === '' ) {
 				continue;
 			}
 
-			$choices[ $group['key'] ] = sprintf( '%s (%s)', $group['title'], $group['key'] );
+			if ( in_array( $group_key, $excluded_keys, true ) ) {
+				continue;
+			}
+
+			$choices[ $group_key ] = sprintf( '%s (%s)', $group_title, $group_key );
 		}
 
 		$field['choices'] = $choices;
 
 		return $field;
+	}
+
+	/**
+	 * Redirect completed evaluation forms to the evaluation archive.
+	 */
+	public function set_evaluation_success_url( string $success_url, string $form_id, string $object_id ) : string {
+		if ( strpos( $form_id, 'evaluation-session-' ) !== 0 ) {
+			return $success_url;
+		}
+
+		$success_url = get_post_type_archive_link( 'evaluation' );
+		$success_url = add_query_arg( 'success', true, $success_url );
+
+		return $success_url;
 	}
 
 	public function form_id_from_term( \WP_Term $term ) : string {

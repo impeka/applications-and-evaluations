@@ -15,6 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class EvaluationFormBuilder {
 	private static ?EvaluationFormBuilder $instance = null;
+	private array $summary_config = [];
 
 	private function __construct() {
 		// Run after the evaluation taxonomy is registered so get_terms() succeeds.
@@ -22,6 +23,7 @@ class EvaluationFormBuilder {
 		add_action( 'acf/init', [ $this, 'register_form_builder_fields' ] );
 		add_filter( 'acf/load_field/name=evaluation_form_field_group', [ $this, 'populate_field_group_choices' ] );
 		add_filter( 'impeka/forms/success_url', [ $this, 'set_evaluation_success_url' ], 10, 3 );
+		add_filter( 'impeka/forms/acf_form_args', [ $this, 'maybe_render_summary_page' ], 10, 3 );
 	}
 
 	public static function get_instance() : self {
@@ -84,6 +86,15 @@ class EvaluationFormBuilder {
 								],
 							],
 						],
+					],
+					[
+						'key'           => 'field_evaluation_form_append_summary',
+						'label'         => __( 'Append Summary Page', 'applications-and-evaluations' ),
+						'name'          => 'evaluation_form_append_summary',
+						'type'          => 'true_false',
+						'message'       => __( 'Add a final summary page showing all subtotals and total score.', 'applications-and-evaluations' ),
+						'ui'            => 1,
+						'default_value' => 0,
 					],
 				],
 			]
@@ -161,6 +172,7 @@ class EvaluationFormBuilder {
 	public function build_form_for_term( \WP_Term $term ) : PostForm {
 		$form_id = $this->form_id_from_term( $term );
 		$form    = new PostForm( $form_id );
+		$builder_group_keys = [];
 
 		$pages = get_field( 'evaluation_form_pages', sprintf( 'evaluation_category_%d', $term->term_id ) );
 		$pages = is_array( $pages ) ? $pages : [];
@@ -179,6 +191,7 @@ class EvaluationFormBuilder {
 						continue;
 					}
 
+					$builder_group_keys[] = $group_row['evaluation_form_field_group'];
 					$page->add_field_group( $group_row['evaluation_form_field_group'] );
 				}
 			}
@@ -186,6 +199,78 @@ class EvaluationFormBuilder {
 			$form->add_page( $page );
 		}
 
+		$append_summary = get_field( 'evaluation_form_append_summary', sprintf( 'evaluation_category_%d', $term->term_id ) );
+
+		if ( $append_summary ) {
+			$summary_labels = $this->collect_score_group_labels( $builder_group_keys );
+
+			if ( ! empty( $summary_labels ) ) {
+				$this->summary_config[ $form_id ] = [
+					'labels' => $summary_labels,
+					'term'   => $term->term_id,
+				];
+
+				$summary_page = new SummaryFormPage( $term->term_id, $summary_labels );
+				$form->add_page( $summary_page );
+			}
+		}
+
 		return $form;
+	}
+
+	private function collect_score_group_labels( array $group_keys ) : array {
+		$labels = [];
+
+		foreach ( $group_keys as $group_key ) {
+			$fields = acf_get_fields( $group_key );
+			if ( ! is_array( $fields ) ) {
+				continue;
+			}
+
+			$this->walk_fields_for_labels( $fields, $labels );
+		}
+
+		return $labels;
+	}
+
+	private function walk_fields_for_labels( array $fields, array &$labels ) : void {
+		foreach ( $fields as $field ) {
+			if ( ! is_array( $field ) || empty( $field['type'] ) ) {
+				continue;
+			}
+
+			$type  = $field['type'];
+			$group = $field['data-score-group'] ?? '';
+
+			if ( $group !== '' && $type === 'score_subtotal' ) {
+				// Use the sub-total field's own label, fallback to the group key if blank.
+				$labels[ $group ] = ! empty( $field['label'] ) ? $field['label'] : $group;
+			}
+
+			if ( isset( $field['sub_fields'] ) && is_array( $field['sub_fields'] ) ) {
+				$this->walk_fields_for_labels( $field['sub_fields'], $labels );
+			}
+		}
+	}
+
+	public function maybe_render_summary_page( array $acf_form_args, string $form_id, int|string $post_id ) : array {
+		if ( empty( $this->summary_config[ $form_id ] ) ) {
+			return $acf_form_args;
+		}
+
+		$config = $this->summary_config[ $form_id ];
+		$term   = $config['term'] ?? 0;
+
+		if ( ! $term ) {
+			return $acf_form_args;
+		}
+
+		$summary_group_key = sprintf( 'group_eval_summary_%d', $term );
+
+		if ( in_array( $summary_group_key, $acf_form_args['field_groups'], true ) ) {
+			$acf_form_args['field_groups'] = [ $summary_group_key ];
+		}
+
+		return $acf_form_args;
 	}
 }

@@ -16,6 +16,7 @@ require_once __DIR__ . '/classes/class-application-registrar.php';
 require_once __DIR__ . '/classes/class-evaluation-registrar.php';
 require_once __DIR__ . '/classes/class-evaluation-form-builder.php';
 require_once __DIR__ . '/classes/class-evaluation.php';
+require_once __DIR__ . '/classes/class-summary-form-page.php';
 require_once __DIR__ . '/classes/class-email-base.php';
 require_once __DIR__ . '/classes/class-application-submitted-email.php';
 require_once __DIR__ . '/classes/class-evaluation-submitted-email.php';

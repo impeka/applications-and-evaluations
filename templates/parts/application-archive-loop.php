@@ -113,7 +113,9 @@ $type_filter    = isset( $type_term ) && $type_term instanceof WP_Term ? $type_t
 											$view_link     = get_permalink( $application_post ).'/view/';
 											$delete_link   = get_delete_post_link( $application_post->ID, '', false );
 											$created       = ae_application_created_display( $application_post );
-											$edit_disabled   = $session_closed && ! $application->is_unlocked();
+											$is_submitted    = $application->get_status() === 'submit';
+											$edit_disabled   = ( $session_closed && ! $application->is_unlocked() ) || $is_submitted;
+											$edit_disabled_reason = $is_submitted ? __( 'Editing disabled; application submitted.', 'applications-and-evaluations' ) : __( 'Editing disabled; session closed.', 'applications-and-evaluations' );
 											$delete_disabled = ! $session_active;
 											?>
 											<tr>
@@ -136,22 +138,22 @@ $type_filter    = isset( $type_term ) && $type_term instanceof WP_Term ? $type_t
 														$edit_link 
 														&& ! $edit_disabled
 													) : ?>
-														<a class="application-table__action application-table__action--edit" href="<?php echo esc_url( $edit_link ); ?>">
+														<a class="application-table__action application-table__action--edit" href="<?php echo esc_url( $edit_link ); ?>" title="<?php esc_attr_e( 'Edit application', 'applications-and-evaluations' ); ?>">
 															<i class="fa-light fa-pen-to-square" aria-hidden="true"></i>
 															<span class="screen-reader-text"><?php esc_html_e( 'Edit application', 'applications-and-evaluations' ); ?></span>
 														</a>
 													<?php elseif ( $edit_disabled ) : ?>
 														<span class="application-table__action application-table__action--edit is-disabled" aria-disabled="true">
 															<i class="fa-light fa-pen-to-square" aria-hidden="true"></i>
-															<span class="screen-reader-text"><?php esc_html_e( 'Editing disabled; session closed.', 'applications-and-evaluations' ); ?></span>
+															<span class="screen-reader-text"><?php echo esc_html( $edit_disabled_reason ); ?></span>
 														</span>
-														<a class="application-table__action application-table__action--view" href="<?php echo esc_url( $view_link ); ?>">
+														<a class="application-table__action application-table__action--view" href="<?php echo esc_url( $view_link ); ?>" title="<?php esc_attr_e( 'View application', 'applications-and-evaluations' ); ?>">
 															<i class="fa-thin fa-eye"aria-hidden="true"></i>
 															<span class="screen-reader-text"><?php esc_html_e( 'View application', 'applications-and-evaluations' ); ?></span>
 														</a>
 													<?php endif; ?>
 													<?php if ( $delete_link && ! $delete_disabled ) : ?>
-														<a class="application-table__action application-table__action--delete" href="<?php echo esc_url( $delete_link ); ?>">
+														<a class="application-table__action application-table__action--delete" href="<?php echo esc_url( $delete_link ); ?>" title="<?php esc_attr_e( 'Delete application', 'applications-and-evaluations' ); ?>">
 															<i class="fa-light fa-trash" aria-hidden="true"></i>
 															<span class="screen-reader-text"><?php esc_html_e( 'Delete application', 'applications-and-evaluations' ); ?></span>
 														</a>

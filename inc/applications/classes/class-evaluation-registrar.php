@@ -27,6 +27,8 @@ class EvaluationRegistrar {
 		add_action( 'manage_evaluation_posts_custom_column', [ $this, 'render_lock_column' ], 10, 2 );
 		add_action( 'restrict_manage_posts', [ $this, 'add_status_admin_filter' ] );
 		add_filter( 'parse_query', [ $this, 'apply_status_admin_filter' ] );
+		add_action( 'init', [ $this, 'add_evaluation_view_rewrite' ], 15 );
+		add_filter( 'query_vars', [ $this, 'add_query_vars' ] );
 	}
 
 	public function register_post_type_and_tax() : void {
@@ -264,6 +266,22 @@ class EvaluationRegistrar {
 		} else {
 			echo '<i class="fa-regular fa-lock error-red-color"></i>';
 		}
+	}
+
+	public function add_evaluation_view_rewrite() : void {
+		add_rewrite_rule(
+			'^evaluations/([^/]+)/view/?$',
+			'index.php?evaluation=$matches[1]&view_only=1',
+			'top'
+		);
+	}
+
+	public function add_query_vars( array $vars ) : array {
+		if ( ! in_array( 'view_only', $vars, true ) ) {
+			$vars[] = 'view_only';
+		}
+
+		return $vars;
 	}
 
 	/**

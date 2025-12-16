@@ -206,6 +206,7 @@ abstract class FormBase implements Form {
     public function get_form( int|string $post_id ) : string {
         $field_groups = [];
         $input_page_value = [];
+        $has_defined_field_groups = false;
         
         $page = isset( $_GET['pg'] ) ? intval( $_GET['pg'] ) : 1;
 
@@ -217,16 +218,31 @@ abstract class FormBase implements Form {
 
             $field_groups = $this->get_page( $page )->get_field_groups();
             $input_page_value[] = $page;
+            if ( ! empty( $field_groups ) ) {
+                $has_defined_field_groups = true;
+            }
         }
         else {
             foreach( $this->_pages as $page_n => $form_page ) {
                 $field_groups = array_merge( $field_groups, $form_page->get_field_groups() );
                 $input_page_value = array_keys( $this->_pages );
+                if ( ! empty( $form_page->get_field_groups() ) ) {
+                    $has_defined_field_groups = true;
+                }
             }
         }
 
-        if( empty( $field_groups ) ) {
-            $field_groups[] = 'impossible_form_group_id_quick_hack'; //if field_groups is empty then acf_form shows all form groups associated with the post type, we don't want that
+        if ( ! $has_defined_field_groups ) {
+            // Avoid letting ACF fall back to all field groups; show a friendly message instead.
+            return apply_filters(
+                'impeka/forms/no_form_configured',
+                sprintf(
+                    '<div class="notification notification-error"><p>%s</p></div>',
+                    esc_html__( 'This form is not configured yet.', 'impeka-forms' )
+                ),
+                $this->get_id(),
+                $this->_get_object_id( $post_id )
+            );
         }
 
         if( ! $this->_validate_form_post_id( $post_id ) ) {
@@ -327,6 +343,8 @@ abstract class FormBase implements Form {
             return $post_id;
         }
 
+        $is_submitted_locked = $this->is_submitted_locked( $post_id );
+
         if( ! isset( $_POST['current_page'] ) ) {
             return $post_id;
         }
@@ -345,7 +363,7 @@ abstract class FormBase implements Form {
         $completed_pages = array_unique( array_merge( $completed_pages, $current_page_arr ) );
         $completed_pages = array_intersect( array_keys( $this->_pages ), $completed_pages );
 
-        if( isset( $_POST['save_flag'] ) ) {
+        if( isset( $_POST['save_flag'] ) && ! $is_submitted_locked ) {
             foreach( $current_page_arr as $key => $value ) {
                 if ( ( $key = array_search( $value, $completed_pages ) ) !== false ) {
                     unset( $completed_pages[$key] );
@@ -405,6 +423,28 @@ abstract class FormBase implements Form {
         }
 
         return end( $form_pages );
+    }
+
+    /**
+     * Check if the current post is an application that has already been submitted.
+     */
+    protected function is_submitted_locked( int|string $post_id ) : bool {
+        if ( ! is_numeric( $post_id ) ) {
+            return false;
+        }
+
+        $post_id = (int) $post_id;
+        $post_type = get_post_type( $post_id );
+
+        if ( $post_type === 'application' ) {
+            return get_post_meta( $post_id, '_application_status', true ) === 'submit';
+        }
+
+        if ( $post_type === 'evaluation' ) {
+            return get_post_meta( $post_id, '_evaluation_status', true ) === 'submit';
+        }
+
+        return false;
     }
 
     abstract protected function _validate_form_post_id( int|string $post_id ) : bool;

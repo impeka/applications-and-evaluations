@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class Plugin {
-    const VERSION = '0.9.0';
+    const VERSION = '0.9.1';
     private static ?Plugin $instance = null;
 
 

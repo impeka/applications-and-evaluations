@@ -99,23 +99,44 @@ if ( is_wp_error( $types ) ) {
 											// Use the first evaluation session the user can access for this application session.
 											$evaluation_session = reset( $evaluation_sessions );
 											$existing_eval      = EvaluationTemplateHelpers::get_user_evaluation_for_application( $current_user_id, $application_post->ID );
+											$eval_view_link     = $existing_eval instanceof WP_Post ? trailingslashit( get_permalink( $existing_eval ) ) . 'view/' : '';
 											?>
 											<tr>
 												<td><?php echo esc_html( $application_title ); ?></td>
 												<td><?php echo esc_html( $applicant_name ); ?></td>
 												<td><?php echo esc_html( $submitted_date ); ?></td>
 												<td class="application-table__actions">
-													<a class="application-table__action application-table__action--view" href="<?php echo esc_url( $view_link ); ?>" target="_blank" rel="noopener noreferrer">
-														<i class="fa-thin fa-eye" aria-hidden="true"></i>
+													<a class="application-table__action application-table__action--view" href="<?php echo esc_url( $view_link ); ?>" target="_blank" rel="noopener noreferrer" title="<?php esc_attr_e( 'View application', 'applications-and-evaluations' ); ?>">
+														<i class="fa-thin fa-file-lines" aria-hidden="true"></i>														
 														<span class="screen-reader-text"><?php esc_html_e( 'View application', 'applications-and-evaluations' ); ?></span>
 													</a>
 
-													<?php if ( $existing_eval instanceof WP_Post ) : ?>
-														<a class="application-table__action application-table__action--edit" href="<?php echo esc_url( get_permalink( $existing_eval ) ); ?>">
-															<i class="fa-light fa-pen-to-square" aria-hidden="true"></i>
-															<span class="screen-reader-text"><?php esc_html_e( 'Continue evaluation', 'applications-and-evaluations' ); ?></span>
-														</a>
-													<?php elseif ( $evaluation_session ) : ?>
+											<?php
+											$is_eval_submitted = $existing_eval instanceof WP_Post ? get_post_meta( $existing_eval->ID, '_evaluation_status', true ) === 'submit' : false;
+											?>
+											<?php if ( $existing_eval instanceof WP_Post && ! $is_eval_submitted ) : ?>
+												<a class="application-table__action application-table__action--edit" href="<?php echo esc_url( get_permalink( $existing_eval ) ); ?>" title="<?php esc_attr_e( 'Continue evaluation', 'applications-and-evaluations' ); ?>">
+													<i class="fa-light fa-pen-to-square" aria-hidden="true"></i>
+													<span class="screen-reader-text"><?php esc_html_e( 'Continue evaluation', 'applications-and-evaluations' ); ?></span>
+												</a>
+												<?php if ( $eval_view_link ) : ?>
+													<a class="application-table__action application-table__action--view" href="<?php echo esc_url( $eval_view_link ); ?>" title="<?php esc_attr_e( 'View evaluation', 'applications-and-evaluations' ); ?>">
+														<i class="fa-thin fa-eye" aria-hidden="true"></i>
+														<span class="screen-reader-text"><?php esc_html_e( 'View evaluation', 'applications-and-evaluations' ); ?></span>
+													</a>
+												<?php endif; ?>
+											<?php elseif ( $existing_eval instanceof WP_Post && $is_eval_submitted ) : ?>
+												<span class="application-table__action application-table__action--edit is-disabled" aria-disabled="true">
+													<i class="fa-light fa-pen-to-square" aria-hidden="true"></i>
+													<span class="screen-reader-text"><?php esc_html_e( 'Evaluation submitted; editing disabled.', 'applications-and-evaluations' ); ?></span>
+												</span>
+												<?php if ( $eval_view_link ) : ?>
+													<a class="application-table__action application-table__action--view" href="<?php echo esc_url( $eval_view_link ); ?>" title="<?php esc_attr_e( 'View evaluation', 'applications-and-evaluations' ); ?>">
+														<i class="fa-thin fa-eye" aria-hidden="true"></i>
+														<span class="screen-reader-text"><?php esc_html_e( 'View evaluation', 'applications-and-evaluations' ); ?></span>
+													</a>
+												<?php endif; ?>
+											<?php elseif ( $evaluation_session ) : ?>
 														<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display:inline;">
 															<?php wp_nonce_field( 'ae_new_evaluation', 'ae_new_evaluation_nonce' ); ?>
 															<input type="hidden" name="action" value="create_evaluation" />

@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Applications and Evaluations
  * Description: Moves all application and evaluation form functionality out of the theme.
- * Version: 0.9.0
+ * Version: 0.9.1
  * Author: Impeka
  */
 

@@ -1,0 +1,527 @@
+# Copyright (C) 2026 Impeka
+# This file is distributed under the same license as the Applications and Evaluations plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: Applications and Evaluations 0.9.1\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/applications-and-evaluations\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-01-15T19:39:23+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.10.0\n"
+"X-Domain: applications-and-evaluations\n"
+
+#. Plugin Name of the plugin
+#: C:\impeka\websites\excellence\wp-content\plugins\applications-and-evaluations\applications-and-evaluations.php
+msgid "Applications and Evaluations"
+msgstr ""
+
+#. Description of the plugin
+#: C:\impeka\websites\excellence\wp-content\plugins\applications-and-evaluations\applications-and-evaluations.php
+msgid "Moves all application and evaluation form functionality out of the theme."
+msgstr ""
+
+#. Author of the plugin
+#: C:\impeka\websites\excellence\wp-content\plugins\applications-and-evaluations\applications-and-evaluations.php
+msgid "Impeka"
+msgstr ""
+
+#: inc/applications/classes/class-application-error.php:23
+msgid "Invalid application type."
+msgstr ""
+
+#: inc/applications/classes/class-application-error.php:24
+msgid "Invalid application session."
+msgstr ""
+
+#: inc/applications/classes/class-application-error.php:25
+msgid "This session is not currently accepting applications."
+msgstr ""
+
+#: inc/applications/classes/class-application-error.php:26
+msgid "You have reached the application limit for this session."
+msgstr ""
+
+#: inc/applications/classes/class-application-error.php:27
+msgid "Unable to create the application. Please try again."
+msgstr ""
+
+#: inc/applications/classes/class-application-evaluations-metabox.php:27
+msgid "Linked Evaluations"
+msgstr ""
+
+#: inc/applications/classes/class-application-evaluations-metabox.php:39
+msgid "Unable to load application details."
+msgstr ""
+
+#: inc/applications/classes/class-application-evaluations-metabox.php:44
+msgid "This application has not been submitted yet."
+msgstr ""
+
+#: inc/applications/classes/class-application-evaluations-metabox.php:64
+msgid "No evaluations have been submitted for this application yet."
+msgstr ""
+
+#: inc/applications/classes/class-application-evaluations-metabox.php:122
+msgid "Evaluator"
+msgstr ""
+
+#: inc/applications/classes/class-application-evaluations-metabox.php:126
+#: inc/applications/classes/class-summary-form-page.php:100
+msgid "Total"
+msgstr ""
+
+#: inc/applications/classes/class-application-evaluations-metabox.php:132
+msgid "Unknown user"
+msgstr ""
+
+#: inc/applications/classes/class-application-evaluations-metabox.php:148
+msgid "Sum of Totals"
+msgstr ""
+
+#: inc/applications/classes/class-application-evaluations-metabox.php:154
+msgid "Average Totals"
+msgstr ""
+
+#: inc/applications/classes/class-application-registrar.php:52
+msgid "Applications"
+msgstr ""
+
+#: inc/applications/classes/class-application-registrar.php:53
+#: templates/archive-evaluation.php:85
+msgid "Application"
+msgstr ""
+
+#: inc/applications/classes/class-application-registrar.php:71
+msgid "Application Types"
+msgstr ""
+
+#: inc/applications/classes/class-application-registrar.php:72
+#: inc/applications/classes/class-application-registrar.php:170
+msgid "Application Type"
+msgstr ""
+
+#: inc/applications/classes/class-application-registrar.php:86
+msgid "Application Sessions"
+msgstr ""
+
+#: inc/applications/classes/class-application-registrar.php:87
+#: inc/applications/classes/class-evaluation-registrar.php:96
+msgid "Application Session"
+msgstr ""
+
+#: inc/applications/classes/class-application-registrar.php:105
+msgid "Application Form Builder"
+msgstr ""
+
+#: inc/applications/classes/class-application-registrar.php:118
+#: inc/applications/classes/class-evaluation-form-builder.php:58
+msgid "Form Pages"
+msgstr ""
+
+#: inc/applications/classes/class-application-registrar.php:122
+#: inc/applications/classes/class-evaluation-form-builder.php:62
+msgid "Add Page"
+msgstr ""
+
+#: inc/applications/classes/class-application-registrar.php:126
+#: inc/applications/classes/class-evaluation-form-builder.php:66
+msgid "Page Label"
+msgstr ""
+
+#: inc/applications/classes/class-application-registrar.php:132
+#: inc/applications/classes/class-evaluation-form-builder.php:72
+msgid "Field Groups"
+msgstr ""
+
+#: inc/applications/classes/class-application-registrar.php:136
+#: inc/applications/classes/class-evaluation-form-builder.php:76
+msgid "Add Field Group"
+msgstr ""
+
+#: inc/applications/classes/class-application-registrar.php:140
+#: inc/applications/classes/class-evaluation-form-builder.php:80
+msgid "ACF Field Group"
+msgstr ""
+
+#: inc/applications/classes/class-application-registrar.php:157
+msgid "Application Session Settings"
+msgstr ""
+
+#: inc/applications/classes/class-application-registrar.php:179
+msgid "Select the application type this session belongs to."
+msgstr ""
+
+#: inc/applications/classes/class-application-registrar.php:184
+msgid "Opens At"
+msgstr ""
+
+#: inc/applications/classes/class-application-registrar.php:189
+msgid "Applications can start at this date/time. Leave empty to open immediately."
+msgstr ""
+
+#: inc/applications/classes/class-application-registrar.php:193
+msgid "Closes At"
+msgstr ""
+
+#: inc/applications/classes/class-application-registrar.php:198
+msgid "Applications close after this date/time. Leave empty for no end date."
+msgstr ""
+
+#: inc/applications/classes/class-application-registrar.php:202
+msgid "Submissions Per User"
+msgstr ""
+
+#: inc/applications/classes/class-application-registrar.php:207
+msgid "Maximum applications a single user can submit for this session. Use 0 or leave empty for unlimited."
+msgstr ""
+
+#: inc/applications/classes/class-application-registrar.php:213
+msgid "Visibility When Out of Session"
+msgstr ""
+
+#: inc/applications/classes/class-application-registrar.php:216
+msgid "Keep this session selectable even when outside its open/close dates."
+msgstr ""
+
+#: inc/applications/classes/class-application-registrar.php:223
+#: inc/applications/classes/class-evaluation-registrar.php:164
+msgid "Confirmation Email Subject"
+msgstr ""
+
+#: inc/applications/classes/class-application-registrar.php:226
+msgid "Email subject sent to applicants after submission."
+msgstr ""
+
+#: inc/applications/classes/class-application-registrar.php:230
+#: inc/applications/classes/class-evaluation-registrar.php:171
+msgid "Confirmation Email Message"
+msgstr ""
+
+#: inc/applications/classes/class-application-registrar.php:234
+msgid "Email body sent to applicants after submission."
+msgstr ""
+
+#: inc/applications/classes/class-application-registrar.php:243
+#: inc/applications/classes/class-application-registrar.php:247
+msgid "Force Unlock"
+msgstr ""
+
+#: inc/applications/classes/class-application-registrar.php:259
+msgid "Unlock this application so applicant can make changes"
+msgstr ""
+
+#: inc/applications/classes/class-application-registrar.php:315
+#: inc/applications/classes/class-evaluation-registrar.php:202
+msgid "Date"
+msgstr ""
+
+#: inc/applications/classes/class-application-registrar.php:325
+#: inc/applications/classes/class-evaluation-registrar.php:212
+#: templates/parts/application-archive-loop.php:103
+msgid "Status"
+msgstr ""
+
+#: inc/applications/classes/class-application-registrar.php:326
+#: inc/applications/classes/class-application-registrar.php:347
+#: inc/applications/classes/class-evaluation-registrar.php:213
+#: inc/applications/classes/class-evaluation-registrar.php:234
+#: templates/archive-evaluation.php:87
+#: templates/parts/application-archive-loop.php:129
+msgid "Submitted"
+msgstr ""
+
+#: inc/applications/classes/class-application-registrar.php:330
+#: inc/applications/classes/class-evaluation-registrar.php:217
+msgid "Unlocked"
+msgstr ""
+
+#: inc/applications/classes/class-application-registrar.php:398
+#: inc/applications/classes/class-evaluation-registrar.php:300
+msgid "All statuses"
+msgstr ""
+
+#: inc/applications/classes/class-application-registrar.php:399
+#: inc/applications/classes/class-evaluation-registrar.php:301
+msgid "Submitted only"
+msgstr ""
+
+#: inc/applications/classes/class-application-submitted-email.php:21
+msgid "Application Submitted"
+msgstr ""
+
+#: inc/applications/classes/class-application-submitted-email.php:22
+msgid "Your application \"%s\" has been submitted."
+msgstr ""
+
+#: inc/applications/classes/class-application-template-helpers.php:148
+msgid "Opens"
+msgstr ""
+
+#: inc/applications/classes/class-application-template-helpers.php:151
+msgid "Closes"
+msgstr ""
+
+#: inc/applications/classes/class-evaluation-form-builder.php:45
+msgid "Evaluation Form Builder"
+msgstr ""
+
+#: inc/applications/classes/class-evaluation-form-builder.php:92
+msgid "Append Summary Page"
+msgstr ""
+
+#: inc/applications/classes/class-evaluation-form-builder.php:95
+msgid "Add a final summary page showing all subtotals and total score."
+msgstr ""
+
+#: inc/applications/classes/class-evaluation-registrar.php:39
+#: templates/archive-evaluation.php:35
+msgid "Evaluations"
+msgstr ""
+
+#: inc/applications/classes/class-evaluation-registrar.php:40
+#: inc/applications/classes/class-request-create-evaluation.php:62
+msgid "Evaluation"
+msgstr ""
+
+#: inc/applications/classes/class-evaluation-registrar.php:58
+msgid "Evaluation Sessions"
+msgstr ""
+
+#: inc/applications/classes/class-evaluation-registrar.php:59
+msgid "Evaluation Session"
+msgstr ""
+
+#: inc/applications/classes/class-evaluation-registrar.php:83
+msgid "Evaluation Session Settings"
+msgstr ""
+
+#: inc/applications/classes/class-evaluation-registrar.php:105
+msgid "Select the application session this evaluation category applies to."
+msgstr ""
+
+#: inc/applications/classes/class-evaluation-registrar.php:110
+msgid "Who Can Evaluate"
+msgstr ""
+
+#: inc/applications/classes/class-evaluation-registrar.php:115
+msgid "By user role / group"
+msgstr ""
+
+#: inc/applications/classes/class-evaluation-registrar.php:116
+msgid "By specific users"
+msgstr ""
+
+#: inc/applications/classes/class-evaluation-registrar.php:123
+msgid "Allowed Roles"
+msgstr ""
+
+#: inc/applications/classes/class-evaluation-registrar.php:139
+msgid "Select the roles/groups allowed to evaluate applications in this evaluation session."
+msgstr ""
+
+#: inc/applications/classes/class-evaluation-registrar.php:143
+msgid "Allowed Users"
+msgstr ""
+
+#: inc/applications/classes/class-evaluation-registrar.php:160
+msgid "Select specific evaluators. Uses a searchable multi-select to avoid long lists."
+msgstr ""
+
+#: inc/applications/classes/class-evaluation-registrar.php:167
+msgid "Email subject sent to evaluators after they submit an evaluation."
+msgstr ""
+
+#: inc/applications/classes/class-evaluation-registrar.php:175
+msgid "Email body sent to evaluators after submission."
+msgstr ""
+
+#: inc/applications/classes/class-evaluation-submitted-email.php:21
+msgid "Evaluation Submitted"
+msgstr ""
+
+#: inc/applications/classes/class-evaluation-submitted-email.php:22
+msgid "Your evaluation \"%s\" has been submitted."
+msgstr ""
+
+#: inc/applications/classes/class-form-submission-error-base.php:25
+msgid "An error occurred."
+msgstr ""
+
+#: inc/applications/classes/class-settings.php:27
+#: inc/applications/classes/class-settings.php:28
+#: inc/applications/classes/class-settings.php:121
+msgid "A&E Settings"
+msgstr ""
+
+#: inc/applications/classes/class-settings.php:46
+msgid "Email Settings"
+msgstr ""
+
+#: inc/applications/classes/class-settings.php:48
+msgid "Configure the sender and admin copy options used by Applications & Evaluations emails."
+msgstr ""
+
+#: inc/applications/classes/class-settings.php:55
+msgid "Sender Name"
+msgstr ""
+
+#: inc/applications/classes/class-settings.php:63
+msgid "Sender Email"
+msgstr ""
+
+#: inc/applications/classes/class-settings.php:71
+msgid "Do Not CC Confirmation Email to Admin"
+msgstr ""
+
+#: inc/applications/classes/class-settings.php:92
+msgid "Name to use as the email sender."
+msgstr ""
+
+#: inc/applications/classes/class-settings.php:100
+msgid "Email address used in the From header."
+msgstr ""
+
+#: inc/applications/classes/class-settings.php:110
+msgid "Do not CC admin on confirmation emails."
+msgstr ""
+
+#: inc/applications/classes/class-summary-form-page.php:49
+msgid "Evaluation Summary"
+msgstr ""
+
+#: inc/applications/classes/class-summary-form-page.php:53
+msgid "Summary"
+msgstr ""
+
+#: inc/applications/classes/class-summary-form-page.php:87
+msgid "Subtotal"
+msgstr ""
+
+#: inc/applications/classes/class-summary-form-page.php:88
+msgid "Score"
+msgstr ""
+
+#: templates/archive-evaluation.php:39
+#: templates/parts/application-archive-loop.php:23
+msgid "No application types available."
+msgstr ""
+
+#: templates/archive-evaluation.php:49
+#: templates/parts/application-archive-loop.php:38
+msgid "No active sessions for this application type."
+msgstr ""
+
+#: templates/archive-evaluation.php:81
+msgid "Applications to Evaluate"
+msgstr ""
+
+#: templates/archive-evaluation.php:86
+msgid "Applicant"
+msgstr ""
+
+#: templates/archive-evaluation.php:88
+#: templates/parts/application-archive-loop.php:104
+msgid "Actions"
+msgstr ""
+
+#: templates/archive-evaluation.php:94
+#: templates/parts/application-archive-loop.php:111
+msgid "Application #%d"
+msgstr ""
+
+#: templates/archive-evaluation.php:109
+#: templates/archive-evaluation.php:111
+#: templates/parts/application-archive-loop.php:150
+#: templates/parts/application-archive-loop.php:152
+msgid "View application"
+msgstr ""
+
+#: templates/archive-evaluation.php:118
+#: templates/archive-evaluation.php:120
+msgid "Continue evaluation"
+msgstr ""
+
+#: templates/archive-evaluation.php:123
+#: templates/archive-evaluation.php:125
+#: templates/archive-evaluation.php:134
+#: templates/archive-evaluation.php:136
+msgid "View evaluation"
+msgstr ""
+
+#: templates/archive-evaluation.php:131
+msgid "Evaluation submitted; editing disabled."
+msgstr ""
+
+#: templates/archive-evaluation.php:147
+msgid "Start evaluation"
+msgstr ""
+
+#: templates/parts/application-archive-loop.php:69
+msgid "New Application"
+msgstr ""
+
+#: templates/parts/application-archive-loop.php:73
+msgid "Application limit reached for this session."
+msgstr ""
+
+#: templates/parts/application-archive-loop.php:75
+msgid "This session is closed."
+msgstr ""
+
+#: templates/parts/application-archive-loop.php:77
+msgid "Log in to start an application."
+msgstr ""
+
+#: templates/parts/application-archive-loop.php:82
+msgid "You can submit %1$d application(s) for this session. %2$d remaining."
+msgstr ""
+
+#: templates/parts/application-archive-loop.php:92
+msgid "Your Applications"
+msgstr ""
+
+#: templates/parts/application-archive-loop.php:94
+msgid "Log in to view your applications."
+msgstr ""
+
+#: templates/parts/application-archive-loop.php:96
+msgid "You have not started any applications for this session."
+msgstr ""
+
+#: templates/parts/application-archive-loop.php:101
+msgid "Title"
+msgstr ""
+
+#: templates/parts/application-archive-loop.php:102
+msgid "Created"
+msgstr ""
+
+#: templates/parts/application-archive-loop.php:118
+msgid "Editing disabled; application submitted."
+msgstr ""
+
+#: templates/parts/application-archive-loop.php:118
+msgid "Editing disabled; session closed."
+msgstr ""
+
+#: templates/parts/application-archive-loop.php:141
+#: templates/parts/application-archive-loop.php:143
+msgid "Edit application"
+msgstr ""
+
+#: templates/parts/application-archive-loop.php:156
+#: templates/parts/application-archive-loop.php:158
+msgid "Delete application"
+msgstr ""
+
+#: templates/parts/application-archive-loop.php:163
+msgid "Delete disabled; session closed."
+msgstr ""
+
+#: templates/single-evaluation.php:38
+msgid "View Application"
+msgstr ""

@@ -7,7 +7,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class Plugin {
-    const VERSION = '0.9.1';
+    const VERSION = '1.0.0';
+    const TEXT_DOMAIN = 'applications-and-evaluations';
     private static ?Plugin $instance = null;
 
 
@@ -20,9 +21,18 @@ class Plugin {
     }
 
     public function init() : void {
+        add_action( 'plugins_loaded', [ $this, 'load_textdomain' ] );
         add_action( 'init', [ $this, 'bootstrap' ], 1 );
         add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_assets' ] );
         add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_assets' ] );
+    }
+
+    public function load_textdomain() : void {
+        load_plugin_textdomain(
+            self::TEXT_DOMAIN,
+            false,
+            dirname( plugin_basename( IMPEKA_AE_PLUGIN_FILE ) ) . '/languages'
+        );
     }
 
     public function bootstrap() : void {
